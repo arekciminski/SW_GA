@@ -2,9 +2,8 @@ from epanettools import epanet2 as et
 
 class Epa:
 
-    def __init__(self, species, SW_parameters):
+    def __init__(self, SW_parameters):
         self.SW_parameters = SW_parameters
-        self.species = species
 
     def open_epanet(self):
         ret = et.ENopen(self.SW_parameters['file_name'], "Net3.rpt", "")
@@ -69,11 +68,11 @@ class Epa:
         for tank_in, initial_val in zip(self.tank_index, self.SW_parameters['initial_tanks_lev']):
             et.ENsetnodevalue(tank_in, 8, initial_val)
 
-    def set_patern_values(self):
+    def set_patern_values(self,species):
         for i in range(self.SW_parameters['num_pumps']):
             # print(self.data.keys())
             for j in range(self.SW_parameters['time_duration_h']):
-                et.ENsetpatternvalue(self.pumps_pattern_index[i], j + 1, self.species['pump_input'][i][j])
+                et.ENsetpatternvalue(self.pumps_pattern_index[i], j + 1, species['pump_input'][i][j])
 
     ''' for i in range(self.parameters['num_demands']):
             for j in range(self.parameters['time_duration_h']):
@@ -182,7 +181,7 @@ class Epa:
 
         self.data['error_output'].append(error[:-1])
 
-    def get_data(self):
+    def get_data(self,species):
 
         self.prepare_empty_dict_to_comput()
 
@@ -190,7 +189,7 @@ class Epa:
         self.get_set_parameters()
 
         self.set_tank_inital()
-        self.set_patern_values()
+        self.set_patern_values(species)
         [flow, energy, head, error, time] = self.get_hydraulic_values()
 
         self.insert_data(head, flow, energy, error, time)

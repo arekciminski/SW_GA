@@ -1,7 +1,6 @@
-from Get_data_from_DWDS import Epa
-
 import numpy as np
 
+from GA_functions import GA_function
 
 file_name = "chojnice_kwiecien_obiekt.inp"
 
@@ -33,6 +32,7 @@ SW_parameters['num_tanks'] = len(SW_parameters['tanks_names'])
 SW_parameters['time_duration_s'] = SW_parameters['time_duration_h']*3600 ##[s]
 
 GA_parameters = {
+    'penalty_function_weights': [1e5, 10, 20, 30, 40],
     'num_generations': 100,
     'num_parents_mating': SW_parameters['num_pumps'] * SW_parameters['time_duration_h'],
     'sol_per_pop': 50,
@@ -57,41 +57,6 @@ GA_parameters = {
 
 species = {'pump_input': np.random.random_sample(size= (SW_parameters['num_pumps'], SW_parameters['time_duration_h']))}
 
-ep = Epa(species, SW_parameters)
+ga = GA_function(GA_parameters,SW_parameters)
 
-
-
-def fitnes_function(species,ep, GA_parameters, SW_parameters):
-    ep.get_data()
-    print(error_penalty_function(ep))
-    print(head_penalty_function(ep))
-
-    print(ep.data.keys())
-
-    return 0
-
-def head_penalty_function(epa):
-
-    head_penalty = 0
-
-    for i in range(len(epa.SW_parameters['mes_nodes_names'])):
-        for j in range(epa.SW_parameters['time_duration_h']):
-            cross_values = epa.data['head_output_'+epa.SW_parameters['mes_nodes_names'][i]][0][j] - epa.SW_parameters['min_head_lev'][i]
-            if cross_values < 0:
-                head_penalty += abs(cross_values)
-
-    for i in range(len(epa.SW_parameters['mes_nodes_names'])):
-        for j in range(epa.SW_parameters['time_duration_h']):
-            cross_values = - epa.data['head_output_'+epa.SW_parameters['mes_nodes_names'][i]][0][j] + epa.SW_parameters['max_head_lev'][i]
-            if cross_values < 0:
-                head_penalty += abs(cross_values)
-
-    print(head_penalty)
-
-def error_penalty_function(epa):
-    return sum(epa.data['error_output'][0])
-
-
-
-
-fitnes_function(species,ep, GA_parameters, SW_parameters)
+ga.fitnes_function(species)
