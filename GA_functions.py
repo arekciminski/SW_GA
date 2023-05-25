@@ -8,21 +8,20 @@ class GA_function:
         self.GA_parameters = GA_parameters
         self.ep = Epa(SW_parameters)
 
-    def fitnes_function(self, species):
+    def fitnes_function(self, ga_instance, species, solution_idx):
         self.ep.get_data(species)
-        print(self.error_penalty_function(self.ep))
-        print(self.head_penalty_function(self.ep))
-        print(self.flow_penalty_function(self.ep))
-        print(self.tank_penalty_function(self.ep))
-        print(self.tank_final_state_penalty_function(self.ep))
-        print(self.ep.data.keys())
 
-        return 0
+        fitnes_fun = self.GA_parameters['penalty_function_weights'][0] *self.error_penalty_function(self.ep) + \
+            self.GA_parameters['penalty_function_weights'][0] * self.head_penalty_function(self.ep) + \
+            self.GA_parameters['penalty_function_weights'][0] * self.flow_penalty_function(self.ep) + \
+            self.GA_parameters['penalty_function_weights'][0] * self.tank_penalty_function(self.ep) + \
+            self.GA_parameters['penalty_function_weights'][0] * self.tank_final_state_penalty_function(self.ep)
+        return -fitnes_fun
 
-    def GA_loop(self):
+    def GA_run(self):
         ga_instance = pygad.GA(num_generations=self.GA_parameters['num_generations'],
                            num_parents_mating=self.GA_parameters['num_parents_mating'],
-                           fitness_func = self.fitnes_function(),
+                           fitness_func = self.fitnes_function,
                            sol_per_pop=self.GA_parameters['sol_per_pop'],
                            num_genes=self.GA_parameters['num_genes'],
                            init_range_low=self.GA_parameters['init_range_low'],
@@ -31,15 +30,30 @@ class GA_function:
                            keep_parents=self.GA_parameters['keep_parents'],
                            crossover_type=self.GA_parameters['crossover_type'],
                            mutation_type=self.GA_parameters['mutation_type'],
-                           mutation_percent_genes=self.GA_parameters['mutation_percent_genes)'],
+                           mutation_percent_genes=self.GA_parameters['mutation_percent_genes'],
                            keep_elitism  =  self.GA_parameters['keep_elitism'],
                            crossover_probability = self.GA_parameters['crossover_probability'],
                            random_mutation_min_val = self.GA_parameters['random_mutation_min_val'],
                            random_mutation_max_val = self.GA_parameters['random_mutation_max_val'],
                            on_mutation = self.GA_parameters['on_mutation'],
-                           save_best_solutions = self.GA_parameters['save_best_solutions'],
                            parallel_processing = self.GA_parameters['parallel_processing'],
         )
+
+        ga_instance.on_start
+        for i in range(10):
+            ga_instance.on_fitness
+            ga_instance.on_parents
+            ga_instance.on_crossover
+            ga_instance.on_mutation
+            ga_instance.on_generation
+
+            solution, solution_fitness, solution_idx = ga_instance.best_solution()
+            #print(solution)
+            print(ga_instance.plot_new_solution_rate())
+            print(solution_fitness)
+            #print(solution_idx)
+            if i>1:
+                ga_instance.plot_fitness()
 
     def tank_final_state_penalty_function(self, epa):
         for i in range(len(epa.SW_parameters['mes_nodes_names']) - len(epa.SW_parameters['tanks_names']),
@@ -116,4 +130,4 @@ class GA_function:
 
 
 if __name__ == '__main__':
-        print('To jest biblioteka pomocna przy algorytmie genetycznym')
+        print('\nTo jest biblioteka pomocna przy algorytmie genetycznym')

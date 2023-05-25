@@ -35,7 +35,7 @@ GA_parameters = {
     'penalty_function_weights': [1e5, 10, 20, 30, 40],
     'num_generations': 100,
     'num_parents_mating': SW_parameters['num_pumps'] * SW_parameters['time_duration_h'],
-    'sol_per_pop': 50,
+    'sol_per_pop': 100,
     'gene_type': float,
     'num_genes': SW_parameters['num_pumps'] * SW_parameters['time_duration_h'],
     'init_range_low': 0,
@@ -55,8 +55,10 @@ GA_parameters = {
 
 }
 
-species = {'pump_input': np.random.random_sample(size= (SW_parameters['num_pumps'], SW_parameters['time_duration_h']))}
+species = np.random.random_sample(size= (1,SW_parameters['num_pumps']*SW_parameters['time_duration_h']))
+
 
 ga = GA_function(GA_parameters,SW_parameters)
+ga.GA_run()
 
-ga.fitnes_function(species)
+

@@ -61,7 +61,6 @@ class Epa:
         self.demand_pattern_index = pattern_index
 
     def set_time_duration(self):
-        print(self.SW_parameters['time_duration_s'])
         et.ENsettimeparam(0, self.SW_parameters['time_duration_s'])
 
     def set_tank_inital(self):
@@ -70,9 +69,9 @@ class Epa:
 
     def set_patern_values(self,species):
         for i in range(self.SW_parameters['num_pumps']):
-            # print(self.data.keys())
-            for j in range(self.SW_parameters['time_duration_h']):
-                et.ENsetpatternvalue(self.pumps_pattern_index[i], j + 1, species['pump_input'][i][j])
+             for j in range(self.SW_parameters['time_duration_h']):
+                 et.ENsetpatternvalue(self.pumps_pattern_index[i], j + 1, species[i*\
+                                                                        self.SW_parameters['time_duration_h'] + j])
 
     ''' for i in range(self.parameters['num_demands']):
             for j in range(self.parameters['time_duration_h']):
@@ -87,7 +86,6 @@ class Epa:
         self.get_pattern_index()
         self.set_time_duration()
         #self.save_temp_file()
-        #print(1111)
 
     def prepare_empty_dict_to_comput(self):
 
@@ -130,10 +128,8 @@ class Epa:
             if t % self.SW_parameters['hydraulic_step_s'] == 0:
                 error.append(ret)
                 time.append(t)
-                #print(time)
                 if self.SW_parameters['hydraulic_monitor_values'][0] == 'flow':
                     for i in range(0, len(self.link_index)):
-                        # print(self.link_index[i])
                         ret, p = et.ENgetlinkvalue(self.link_index[i], et.EN_FLOW)
                         flow[i].append(p)
 
@@ -148,7 +144,6 @@ class Epa:
                         energy[i].append(p)
 
             ret, tstep = et.ENnextH()
-            #print(tstep)
             if (tstep <= 0):
                 break
         ret = et.ENcloseH()
@@ -168,7 +163,6 @@ class Epa:
             temp_tank_init = []
             for i in range(0, self.SW_parameters['time_duration_h']):
                 temp_tank_init.append(self.SW_parameters['initial_tanks_lev'][ii])
-                # print([i,ii,temp_tank_init])
             self.data['tank_input_' + self.SW_parameters['tanks_names'][ii]].append(temp_tank_init)
 
         for ii in range(self.SW_parameters['num_mes_links']):
