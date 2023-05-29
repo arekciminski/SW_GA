@@ -35,24 +35,19 @@ GA_parameters = {
     'penalty_function_weights': [1e5, 10, 20, 30, 40],
     'num_generations': 100,
     'num_parents_mating': SW_parameters['num_pumps'] * SW_parameters['time_duration_h'],
-    'sol_per_pop': 100,
+    'num_specimen': 100,
     'gene_type': float,
-    'num_genes': SW_parameters['num_pumps'] * SW_parameters['time_duration_h'],
-    'init_range_low': 0,
-    'init_range_high': 1,
+    'num_float_genes': SW_parameters['num_pumps'] * SW_parameters['time_duration_h'],
+    'pop_int_low': 0,
+    'pop_int_high': 1,
+    'num_int_genes' : 0,
     'parent_selection_type': 'sss', #rws, sus, random, tournament
-    'keep_parents': -1,
-    'keep_elitism': 10,
     'crossover_probability': 0.9,
     'crossover_type': 'single_point', #two_points , uniform , scattered
     'mutation_type':  'random', #swap, inversion , scramble ,
     'mutation_percent_genes': 50,
-    'random_mutation_min_val': 0,
-    'random_mutation_max_val': 1,
-    'on_mutation': None,
-    'save_best_solutions': True,
-    'parallel_processing': None,
-
+    'pop_float_val': 0,
+    'pop_float_val': 1,
 }
 
 species = np.random.random_sample(size= (1,SW_parameters['num_pumps']*SW_parameters['time_duration_h']))
