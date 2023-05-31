@@ -1,9 +1,8 @@
-import pygad
-
 from Get_data_from_DWDS import Epa
 import numpy as np
 import copy
 from statistics import mean
+
 
 class GA_function:
 
@@ -11,7 +10,6 @@ class GA_function:
         self.sw_parameters = sw_parameters
         self.ga_parameters = ga_parameters
         self.ep = Epa(sw_parameters)
-
 
 
     def tank_final_state_penalty_function(self, epa):
@@ -85,6 +83,12 @@ class GA_function:
         return flow_penalty
 
     def error_penalty_function(self,epa):
+
+        error_values = epa.data['error_output'][0]
+        for i in range(len(error_values)):
+            if error_values[i] > 0:
+                error_values[i] = 1
+
         return sum(epa.data['error_output'][0])
 
     def ga_mutation(self,pop):
@@ -209,19 +213,19 @@ class GA_function:
         low_float_val = self.ga_parameters['pop_float_range_low']
         high_float_val = self.ga_parameters['pop_float_range_high']
 
-        pop = {'pop' : []}
+        pop = {'pop': []}
         pop['num_iteration'] = 0
         pop['best_solutions'] = []
         pop['mean_pop_value'] = []
 
         for i in range(self.ga_parameters['num_specimen']):
-            specimen = [[],[],[]]
+            specimen = [[], [], []]
 
-            if self.ga_parameters['num_int_genes']>0:
-                specimen[1] = (high_int_val - low_int_val) * np.random.randint(low_int_val , high_int_val+1 ,size = \
+            if self.ga_parameters['num_int_genes'] > 0:
+                specimen[1] = (high_int_val - low_int_val) * np.random.randint(low_int_val, high_int_val + 1, size= \
                     (self.ga_parameters['num_int_genes'],)) + low_int_val
-            if self.ga_parameters['num_float_genes']>0:
-                specimen[2] = (high_float_val - low_float_val) * np.random.random_sample(\
+            if self.ga_parameters['num_float_genes'] > 0:
+                specimen[2] = (high_float_val - low_float_val) * np.random.random_sample(
                     (self.ga_parameters['num_float_genes'],)) + low_float_val
             pop['pop'].append(specimen)
 
@@ -243,6 +247,23 @@ class GA_function:
 
                 pop[key][i][0] = fitnes_fun
         return pop
+
+    def ga_stop_criterion(self,pop):
+
+        if pop['num_iteration'] > self.ga_parameters['stop_criterion_min_generations']:
+
+            diff_fitness_function = []
+
+            last_solutions = pop['best_solutions'][-self.ga_parameters['stop_criterion_min_generations']:]
+
+            for i in range(self.ga_parameters['stop_criterion_min_generations']-1,0,-1):
+
+                if abs(last_solutions[i-1] - last_solutions[i]) < self.ga_parameters['stop_criterion_min_change']:
+                    diff_fitness_function.append(0)
+                else:
+                    diff_fitness_function.append(1)
+
+            return sum(diff_fitness_function)
 
 
 if __name__ == '__main__':
@@ -277,9 +298,9 @@ if __name__ == '__main__':
         sw_parameters['time_duration_s'] = sw_parameters['time_duration_h'] * 3600  ##[s]
 
         ga_parameters = {
-            'penalty_function_weights': [10e9, 1, 1, 1, 1],
-            'num_generations': 100,
-            'num_specimen': 50,
+            'penalty_function_weights': [1e9, 1, 1, 1, 1],
+            'num_generations': 200,
+            'num_specimen': 300,
             'num_float_genes': sw_parameters['num_pumps'] * sw_parameters['time_duration_h'],
             'pop_int_range_low': 0,
             'pop_int_range_high': 1,
@@ -292,6 +313,8 @@ if __name__ == '__main__':
             'mutation_percent_probability': 80,
             'pop_float_range_low': 0.4,
             'pop_float_range_high': 1,
+            'stop_criterion_min_generations': 15,
+            'stop_criterion_min_change': 1e-3,
         }
 
         ga = GA_function(ga_parameters , sw_parameters)
@@ -308,5 +331,7 @@ if __name__ == '__main__':
 
             popul = ga.ga_selection(popul)
 
-
             print(f"Iteration number: {popul['num_iteration']}, Mean population value: {popul['mean_pop_value'][-1]}, Best solution: {popul['best_solutions'][-1]}")
+
+            if ga.ga_stop_criterion(popul) == 0:
+                break
