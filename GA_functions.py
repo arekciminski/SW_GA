@@ -232,6 +232,28 @@ class GA_function:
 
         return self.pop
 
+    def add_data_to_pop(self,epa,population_name,specimen_number):
+
+        self.pop[population_name][specimen_number].append(epa.data['error_output'][0])
+
+        temp_head = []
+        for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names'])):
+            temp_head.append(epa.data['head_output_' + epa.sw_parameters['mes_nodes_names'][i]][0])
+
+        self.pop[population_name][specimen_number].append(temp_head)
+
+        temp_tank = []
+        for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names']),
+                       len(epa.sw_parameters['mes_nodes_names'])):
+            temp_tank.append(epa.data['head_output_' + epa.sw_parameters['mes_nodes_names'][i]][0])
+
+        self.pop[population_name][specimen_number].append(temp_tank)
+
+        temp_flow = []
+        for i in range(len(epa.sw_parameters['mes_links_names'])):
+            temp_flow.append(epa.data['flow_output_' + epa.sw_parameters['mes_links_names'][i]][0])
+        self.pop[population_name][specimen_number].append(temp_flow)
+
     def ga_fitnes_function(self):
 
         if self.pop['num_iteration'] == 0:
@@ -242,6 +264,8 @@ class GA_function:
             for i in tqdm(range(len(self.pop[key]))):
                 species = self.pop[key][i][2]
                 self.ep.get_data(species)
+
+                self.add_data_to_pop(self.ep,key,i)
 
                 fitnes_fun = self.ga_parameters['penalty_function_weights'][0] * self.error_penalty_function(self.ep) +\
                     self.ga_parameters['penalty_function_weights'][1] * self.head_penalty_function(self.ep) +\
@@ -285,11 +309,6 @@ def save_variabele_space_to_file(file_name, input_dictionary):
         f.writelines(temp_date)
         f.close()
 
-
-
-
-
-
 if __name__ == '__main__':
         print('\nTo jest biblioteka pomocna przy algorytmie genetycznym')
 
@@ -324,17 +343,17 @@ if __name__ == '__main__':
         ga_parameters = {
             'penalty_function_weights': [1e9, 1, 1, 1, 1],
             'num_generations': 200,
-            'num_specimen': 10,
+            'num_specimen': 300,
             'num_float_genes': sw_parameters['num_pumps'] * sw_parameters['time_duration_h'],
             'pop_int_range_low': 0,
             'pop_int_range_high': 1,
-            'num_int_genes': 10,
+            'num_int_genes': 0,
             'parent_selection_type': 'first_n',  # rws, sus, random, tournament
             'crossover_percent_probability': 40,
             'crossover_type': 'single_point',  # two_points , uniform , scattered
             'mutation_type': 'random',  # swap, inversion , scramble ,
             'mutation_percent_genes': 40,
-            'mutation_percent_probability': 80,
+            'mutation_percent_probability': 60,
             'pop_float_range_low': 0.4,
             'pop_float_range_high': 1,
             'stop_criterion_min_generations': 5,
@@ -347,7 +366,7 @@ if __name__ == '__main__':
 
         ga.ga_fitnes_function()
 
-        for i in range(1):#ga.ga_parameters['num_generations']):
+        for i in range(ga.ga_parameters['num_generations']):
 
             ga.ga_mutation()
 
