@@ -1,4 +1,4 @@
-  Page 1                                    Wed May 31 09:53:40 2023
+  Page 1                                    Wed May 31 12:29:11 2023
 
   ******************************************************************
   *                           E P A N E T                          *
@@ -7,21 +7,44 @@
   *                         Version 2.00.12                        *
   ******************************************************************
   
-  Analysis begun Wed May 31 09:53:40 2023
+  Analysis begun Wed May 31 12:29:11 2023
 
   WARNING: Pump F1 closed because cannot deliver head at 0:00:00 hrs.
-  WARNING: Pump K1 closed because cannot deliver head at 0:00:00 hrs.
-  
-  WARNING: Pump F1 closed because cannot deliver head at 1:00:00 hrs.
-  WARNING: Pump P1 closed because cannot deliver head at 1:00:00 hrs.
+  WARNING: Pump P1 closed because cannot deliver head at 0:00:00 hrs.
   
   WARNING: Pump F1 closed because cannot deliver head at 2:00:00 hrs.
+  WARNING: Pump P1 closed because cannot deliver head at 2:00:00 hrs.
   
-  WARNING: Pump F1 closed because cannot deliver head at 3:00:00 hrs.
   WARNING: Pump P1 closed because cannot deliver head at 3:00:00 hrs.
   
-  WARNING: Pump F1 closed because cannot deliver head at 4:00:00 hrs.
-  WARNING: Pump P1 closed because cannot deliver head at 4:00:00 hrs.
+  WARNING: Pump F1 closed because cannot deliver head at 5:00:00 hrs.
   
-  WARNING: Pump K1 closed because cannot deliver head at 5:00:00 hrs.
+  WARNING: Negative pressures at 7:00:00 hrs.
+  WARNING: Pump P1 open but exceeds maximum flow at 7:00:00 hrs.
   
+  WARNING: Pump P1 closed because cannot deliver head at 8:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 9:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 11:00:00 hrs.
+  
+  WARNING: Negative pressures at 14:00:00 hrs.
+  WARNING: Pump P1 open but exceeds maximum flow at 14:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 15:00:00 hrs.
+  WARNING: Pump P1 closed because cannot deliver head at 15:00:00 hrs.
+  
+  WARNING: Negative pressures at 17:00:00 hrs.
+  WARNING: Pump P1 open but exceeds maximum flow at 17:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 19:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 20:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 21:00:00 hrs.
+  
+  WARNING: Pump F1 closed because cannot deliver head at 22:00:00 hrs.
+  
+  WARNING: Pump P1 closed because cannot deliver head at 23:00:00 hrs.
+  
+  Analysis ended Wed May 31 12:29:11 2023

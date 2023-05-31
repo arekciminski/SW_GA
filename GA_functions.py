@@ -3,7 +3,7 @@ import numpy as np
 import copy
 from statistics import mean
 from tqdm import tqdm
-
+import pickle
 
 class GA_function:
 
@@ -269,6 +269,26 @@ class GA_function:
 
             return sum(diff_fitness_function)
 
+def save_variabele_space_to_file(file_name, input_dictionary):
+
+
+    key = 'last_best_solution'
+    temp_date = []
+    temp_date.append(f"{key}_function_value = {input_dictionary['last_best_solution'][0]}\n")
+    temp_date.append(f"{key}_integer_gene = {str(input_dictionary['last_best_solution'][1]).replace(' ',';')}\n")
+
+    temp_float_gene = str(list(input_dictionary['last_best_solution'][2])).replace(',',';')
+    temp_date.append(f"{key}_float_gene = {temp_float_gene}\n")
+
+
+    with open(file_name,'w') as f:
+        f.writelines(temp_date)
+        f.close()
+
+
+
+
+
 
 if __name__ == '__main__':
         print('\nTo jest biblioteka pomocna przy algorytmie genetycznym')
@@ -304,7 +324,7 @@ if __name__ == '__main__':
         ga_parameters = {
             'penalty_function_weights': [1e9, 1, 1, 1, 1],
             'num_generations': 200,
-            'num_specimen': 30,
+            'num_specimen': 10,
             'num_float_genes': sw_parameters['num_pumps'] * sw_parameters['time_duration_h'],
             'pop_int_range_low': 0,
             'pop_int_range_high': 1,
@@ -317,7 +337,7 @@ if __name__ == '__main__':
             'mutation_percent_probability': 80,
             'pop_float_range_low': 0.4,
             'pop_float_range_high': 1,
-            'stop_criterion_min_generations': 15,
+            'stop_criterion_min_generations': 5,
             'stop_criterion_min_change': 1e-3,
         }
 
@@ -327,7 +347,7 @@ if __name__ == '__main__':
 
         ga.ga_fitnes_function()
 
-        for i in range(ga.ga_parameters['num_generations']):
+        for i in range(1):#ga.ga_parameters['num_generations']):
 
             ga.ga_mutation()
 
@@ -337,10 +357,11 @@ if __name__ == '__main__':
 
             ga.ga_selection()
 
-            print(f"Iteration number: {ga.pop['num_iteration']}, Mean population value: {ga.pop['mean_pop_value'][-1]}, Best solution: {ga.pop['best_solutions'][-1]}")
+            print(f"Iteration number: {ga.pop['num_iteration']}, Mean population value: {ga.pop['mean_pop_value'][-1]},Best solution: {ga.pop['last_best_solution'][0]}")
+
+            save_variabele_space_to_file('last_best_pop.txt', ga.pop)
 
             if ga.ga_stop_criterion() == 0:
+
                 break
 
-
-        dump
