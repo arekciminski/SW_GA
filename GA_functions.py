@@ -2,6 +2,7 @@ from Get_data_from_DWDS import Epa
 import numpy as np
 import copy
 from statistics import mean
+from tqdm import tqdm
 
 
 class GA_function:
@@ -10,7 +11,7 @@ class GA_function:
         self.sw_parameters = sw_parameters
         self.ga_parameters = ga_parameters
         self.ep = Epa(sw_parameters)
-
+        self.pop = []
 
     def tank_final_state_penalty_function(self, epa):
         for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names']),
@@ -91,14 +92,14 @@ class GA_function:
 
         return sum(epa.data['error_output'][0])
 
-    def ga_mutation(self,pop):
+    def ga_mutation(self):
 
         low_int_val = self.ga_parameters['pop_int_range_low']
         high_int_val = self.ga_parameters['pop_int_range_high']
         low_float_val = self.ga_parameters['pop_float_range_low']
         high_float_val = self.ga_parameters['pop_float_range_high']
-        pop['mate_mut'] = []
-        specimen = copy.deepcopy(pop['pop'])
+        self.pop['mate_mut'] = []
+        specimen = copy.deepcopy(self.pop['pop'])
         if self.ga_parameters['mutation_type'] == 'random':
             for i in range(self.ga_parameters['num_specimen']):
                 if np.random.rand() < self.ga_parameters['mutation_percent_probability'] / 100:
@@ -122,23 +123,23 @@ class GA_function:
 
                            for ge_pos in genes_position:
                                species[2][ge_pos] = (high_float_val - low_float_val) * np.random.random() + low_float_val
-                    pop['mate_mut'].append(species)
-        return pop
+                    self.pop['mate_mut'].append(species)
+        return 1
 
-    def ga_crossover(self, pop):
+    def ga_crossover(self):
 
         #low_int_val = self.ga_parameters['pop_int_range_low']
         #high_int_val = self.ga_parameters['pop_int_range_high']
         #low_float_val = self.ga_parameters['pop_float_range_low']
         #high_float_val = self.ga_parameters['pop_float_range_high']
 
-        pop['mate_cros'] = []
+        self.pop['mate_cros'] = []
         if self.ga_parameters['crossover_type'] == 'single_point':
             for i in range(self.ga_parameters['num_specimen']):
                 specimen_to_mutation = np.random.randint(1,self.ga_parameters['num_specimen'],size=(2,))
 
-                specimen_0 = list(copy.deepcopy(pop['pop'][specimen_to_mutation[0]]))
-                specimen_1 = list(copy.deepcopy(pop['pop'][specimen_to_mutation[1]]))
+                specimen_0 = list(copy.deepcopy(self.pop['pop'][specimen_to_mutation[0]]))
+                specimen_1 = list(copy.deepcopy(self.pop['pop'][specimen_to_mutation[1]]))
 
                 if self.ga_parameters['num_int_genes'] > 0:
 
@@ -164,47 +165,47 @@ class GA_function:
                     specimen_0[2] = np.concatenate((second_species_first_half , first_species_second_half))
                     specimen_1[2] = np.concatenate((first_species_first_half, second_species_second_half))
 
-                pop['mate_cros'].append(specimen_0)
-                pop['mate_cros'].append(specimen_1)
+                self.pop['mate_cros'].append(specimen_0)
+                self.pop['mate_cros'].append(specimen_1)
 
-        return pop
+        return 1
 
-    def ga_selection(self, pop):
+    def ga_selection(self):
 
         if self.ga_parameters['parent_selection_type'] == 'first_n':
             keys_list = ['pop', 'mate_mut', 'mate_cros']
             tuple_list = []
             for key in keys_list:
-                for i in range(len(pop[key])):
-                    tuple_list.append(tuple((pop[key][i][0],pop[key][i][1],pop[key][i][2])))
+                for i in range(len(self.pop[key])):
+                    tuple_list.append(tuple((self.pop[key][i][0],self.pop[key][i][1],self.pop[key][i][2])))
 
             sorted_fitnes_fun = sorted(tuple_list, key=lambda x: x[0])[:self.ga_parameters['num_specimen']]
 
-            pop['pop'] = []
+            self.pop['pop'] = []
 
             for i in range(self.ga_parameters['num_specimen']):
                 temp = []
                 for j in range(len(sorted_fitnes_fun[0])):
                     temp.append(sorted_fitnes_fun[i][j])
-                pop['pop'].append(temp)
-            self.ga_statistics(pop)
+                self.pop['pop'].append(temp)
+            self.ga_statistics()
 
-        return pop
+        return 0
 
-    def ga_statistics(self,pop):
+    def ga_statistics(self):
 
-        pop['num_iteration'] += 1
+        self.pop['num_iteration'] += 1
 
-        pop['last_best_solution'] = pop['pop'][0]
+        self.pop['last_best_solution'] = self.pop['pop'][0]
 
-        pop['best_solutions'].append(pop['last_best_solution'][0])
+        self.pop['best_solutions'].append(self.pop['last_best_solution'][0])
 
         population_fun_fitnes = []
 
         for i in range(ga_parameters['num_specimen']):
-            population_fun_fitnes.append(pop['pop'][i][0])
+            population_fun_fitnes.append(self.pop['pop'][i][0])
 
-        pop['mean_pop_value'].append(mean(population_fun_fitnes))
+        self.pop['mean_pop_value'].append(mean(population_fun_fitnes))
 
     def ga_initialization(self):
 
@@ -213,10 +214,10 @@ class GA_function:
         low_float_val = self.ga_parameters['pop_float_range_low']
         high_float_val = self.ga_parameters['pop_float_range_high']
 
-        pop = {'pop': []}
-        pop['num_iteration'] = 0
-        pop['best_solutions'] = []
-        pop['mean_pop_value'] = []
+        self.pop = {'pop': []}
+        self.pop['num_iteration'] = 0
+        self.pop['best_solutions'] = []
+        self.pop['mean_pop_value'] = []
 
         for i in range(self.ga_parameters['num_specimen']):
             specimen = [[], [], []]
@@ -227,16 +228,19 @@ class GA_function:
             if self.ga_parameters['num_float_genes'] > 0:
                 specimen[2] = (high_float_val - low_float_val) * np.random.random_sample(
                     (self.ga_parameters['num_float_genes'],)) + low_float_val
-            pop['pop'].append(specimen)
+            self.pop['pop'].append(specimen)
 
-        return pop
+        return self.pop
 
-    def ga_fitnes_function(self, pop):
+    def ga_fitnes_function(self):
 
-        keys_list = ['pop', 'mate_mut', 'mate_cros']
+        if self.pop['num_iteration'] == 0:
+            keys_list = ['pop']
+        else:
+            keys_list = ['pop', 'mate_mut', 'mate_cros']
         for key in keys_list:
-            for i in range(len(pop[key])):
-                species = pop[key][i][2]
+            for i in tqdm(range(len(self.pop[key]))):
+                species = self.pop[key][i][2]
                 self.ep.get_data(species)
 
                 fitnes_fun = self.ga_parameters['penalty_function_weights'][0] * self.error_penalty_function(self.ep) +\
@@ -245,18 +249,18 @@ class GA_function:
                     self.ga_parameters['penalty_function_weights'][3] * self.tank_penalty_function(self.ep) +\
                     self.ga_parameters['penalty_function_weights'][4] * self.tank_final_state_penalty_function(self.ep)
 
-                pop[key][i][0] = fitnes_fun
-        return pop
+                self.pop[key][i][0] = fitnes_fun
+        return self.pop
 
-    def ga_stop_criterion(self,pop):
+    def ga_stop_criterion(self):
 
-        if pop['num_iteration'] > self.ga_parameters['stop_criterion_min_generations']:
+        if self.pop['num_iteration'] > self.ga_parameters['stop_criterion_min_generations']:
 
             diff_fitness_function = []
 
-            last_solutions = pop['best_solutions'][-self.ga_parameters['stop_criterion_min_generations']:]
+            last_solutions = self.pop['best_solutions'][-self.ga_parameters['stop_criterion_min_generations']:]
 
-            for i in range(self.ga_parameters['stop_criterion_min_generations']-1,0,-1):
+            for i in range(self.ga_parameters['stop_criterion_min_generations']-1, 0,-1):
 
                 if abs(last_solutions[i-1] - last_solutions[i]) < self.ga_parameters['stop_criterion_min_change']:
                     diff_fitness_function.append(0)
@@ -300,7 +304,7 @@ if __name__ == '__main__':
         ga_parameters = {
             'penalty_function_weights': [1e9, 1, 1, 1, 1],
             'num_generations': 200,
-            'num_specimen': 300,
+            'num_specimen': 30,
             'num_float_genes': sw_parameters['num_pumps'] * sw_parameters['time_duration_h'],
             'pop_int_range_low': 0,
             'pop_int_range_high': 1,
@@ -319,19 +323,24 @@ if __name__ == '__main__':
 
         ga = GA_function(ga_parameters , sw_parameters)
 
-        popul = ga.ga_initialization()
+        ga.ga_initialization()
+
+        ga.ga_fitnes_function()
 
         for i in range(ga.ga_parameters['num_generations']):
 
-            popul = ga.ga_mutation(popul)
+            ga.ga_mutation()
 
-            popul = ga.ga_crossover(popul)
+            ga.ga_crossover()
 
-            popul = ga.ga_fitnes_function(popul)
+            ga.ga_fitnes_function()
 
-            popul = ga.ga_selection(popul)
+            ga.ga_selection()
 
-            print(f"Iteration number: {popul['num_iteration']}, Mean population value: {popul['mean_pop_value'][-1]}, Best solution: {popul['best_solutions'][-1]}")
+            print(f"Iteration number: {ga.pop['num_iteration']}, Mean population value: {ga.pop['mean_pop_value'][-1]}, Best solution: {ga.pop['best_solutions'][-1]}")
 
-            if ga.ga_stop_criterion(popul) == 0:
+            if ga.ga_stop_criterion() == 0:
                 break
+
+
+        dump
