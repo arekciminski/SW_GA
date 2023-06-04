@@ -4,9 +4,11 @@ from statistics import mean
 
 import numpy as np
 from tqdm import tqdm
+import time
+
+import matplotlib.pyplot as plt
 
 from Get_data_from_DWDS import Epa
-
 
 class GA_function:
 
@@ -29,17 +31,16 @@ class GA_function:
         self.pop['mean_pop_value'] = []
 
         for i in range(self.ga_parameters['num_specimen']):
-            specimen = [[], [], []]
+            specimen = [[] for i in range(8)]
 
             if self.ga_parameters['num_int_genes'] > 0:
-                specimen[1] = (high_int_val - low_int_val) * np.random.randint(low_int_val, high_int_val + 1, size= \
-                    (self.ga_parameters['num_int_genes'],)) + low_int_val
+                specimen[1] = list((high_int_val - low_int_val) * np.random.randint(low_int_val, high_int_val + 1, size= \
+                    (self.ga_parameters['num_int_genes'],)) + low_int_val)
             if self.ga_parameters['num_float_genes'] > 0:
-                specimen[2] = (high_float_val - low_float_val) * np.random.random_sample(
-                    (self.ga_parameters['num_float_genes'],)) + low_float_val
-            self.pop['pop'].append(specimen)
+                specimen[2] = list((high_float_val - low_float_val) * np.random.random_sample(
+                    (self.ga_parameters['num_float_genes'],)) + low_float_val)
 
-        return self.pop
+            self.pop['pop'].append(specimen)
 
     def tank_final_state_penalty_function(self, epa):
         for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names']),
@@ -123,14 +124,18 @@ class GA_function:
 
     def ga_mutation(self):
 
-        rand = random.random()
+        self.pop['mate_mut'] = []
 
-        if rand < 0.5:
+        self.specimen = copy.deepcopy(self.pop['pop'])
+
+        if random.random() < 0.5:
             if self.ga_parameters['mutation_type'] == 'random':
                 self.ga_mutation_random()
 
         else:
-            self.ga_mutiation_SGO_error()
+            if sum(self.ep.data['error_output'][0]) > 0:
+                self.ga_mutiation_SGO_error()
+#            else:
             self.ga_mutiation_SGO_head()
 
     def ga_mutation_random(self):
@@ -140,21 +145,22 @@ class GA_function:
         low_float_val = self.ga_parameters['pop_float_range_low']
         high_float_val = self.ga_parameters['pop_float_range_high']
 
-        self.pop['mate_mut'] = []
-        specimen = copy.deepcopy(self.pop['pop'])
 
-        for i in range(self.ga_parameters['num_specimen']):
+        for i in range(len(self.specimen)):
             if np.random.rand() < self.ga_parameters['mutation_percent_probability'] / 100:
-                species = specimen[i]
+                species = copy.deepcopy(self.specimen[i])
                 if self.ga_parameters['num_int_genes'] > 0:
 
-                        num_genes = int(self.ga_parameters['num_int_genes']*\
-                                        self.ga_parameters['mutation_percent_genes']/100)
+                    num_genes = int(self.ga_parameters['num_int_genes']*\
+                                    self.ga_parameters['mutation_percent_genes']/100)
 
-                        genes_position = np.random.randint(self.ga_parameters['num_int_genes'],size=(num_genes,))
+                    genes_position = np.random.randint(self.ga_parameters['num_int_genes'],size=(num_genes,))
 
-                        for ge_pos in genes_position:
-                            species[1][ge_pos] = np.random.randint(low_int_val, high_int_val+1,size=(1,))
+                    for ge_pos in genes_position:
+                        species[1][ge_pos] = np.random.randint(low_int_val, high_int_val+1,size=(1,))
+
+                    self.pop['mate_mut'].append(species)
+
                 if self.ga_parameters['num_float_genes'] > 0:
                     if np.random.rand() < self.ga_parameters['mutation_percent_probability']/100:
 
@@ -164,8 +170,13 @@ class GA_function:
                        genes_position = np.random.randint(self.ga_parameters['num_float_genes'], size=(num_genes,))
 
                        for ge_pos in genes_position:
-                           species[2][ge_pos] = (high_float_val - low_float_val) * np.random.random() + low_float_val
-                self.pop['mate_mut'].append(species)
+                           if np.random.rand()<0.5:
+                                species[2][ge_pos] += np.random.rand() * self.ga_parameters['mutation_random_delta']
+                           else:
+                                species[2][ge_pos] -= np.random.rand() * self.ga_parameters['mutation_random_delta']
+                    #print(self.pop['mate_mut'])
+
+                    self.pop['mate_mut'].append(species)
 
     def ga_mutiation_SGO_error(self):
         low_int_val = self.ga_parameters['pop_int_range_low']
@@ -173,14 +184,10 @@ class GA_function:
         low_float_val = self.ga_parameters['pop_float_range_low']
         high_float_val = self.ga_parameters['pop_float_range_high']
 
-        self.pop['mate_mut'] = []
-        specimen = copy.deepcopy(self.pop['pop'])
-
-
         time_dur = self.sw_parameters['time_duration_h']
-        for i in range(self.ga_parameters['num_specimen']):
+        for i in range(len(self.specimen)):
             if np.random.rand() < self.ga_parameters['mutation_percent_probability'] / 100:
-                species = specimen[i]
+                species = copy.deepcopy(self.specimen[i])
                 if self.ga_parameters['num_float_genes'] > 0:
                     for j in range(len(species[3])):
                         error_value = species[3][j]
@@ -195,11 +202,13 @@ class GA_function:
                         if error_value == 4 and flow_pump_funka == 0:
                             species[2][j] += np.random.rand() * self.ga_parameters[
                                 'specialize_operators_error_delta_value']
+
                         if error_value == 4 and flow_pump_plac == 0 and flow_pump_karolewo > 0:
                             species[2][j + 2 * time_dur] += np.random.rand() * self.ga_parameters[
                                 'specialize_operators_error_delta_value']
                             species[2][j + time_dur] -= np.random.rand() * self.ga_parameters[
                                 'specialize_operators_error_delta_value']
+
                         if error_value == 4 and flow_pump_plac == 0 and flow_pump_karolewo == 0:
                             species[2][j + 2 * time_dur] += np.random.rand() * self.ga_parameters[
                                 'specialize_operators_error_delta_value']
@@ -210,36 +219,35 @@ class GA_function:
                             species[2][j] = high_float_val
                         if species[2][j] < low_float_val:
                             species[2][j] = low_float_val
-
                 self.pop['mate_mut'].append(species)
 
     def ga_mutiation_SGO_head(self):
-        low_int_val = self.ga_parameters['pop_int_range_low']
-        high_int_val = self.ga_parameters['pop_int_range_high']
         low_float_val = self.ga_parameters['pop_float_range_low']
         high_float_val = self.ga_parameters['pop_float_range_high']
 
-        self.pop['mate_mut'] = []
-        specimen = copy.deepcopy(self.pop['pop'])
-
+        specimen = self.specimen
 
         time_dur = self.sw_parameters['time_duration_h']
-        for i in range(self.ga_parameters['num_specimen']):
+        for i in range(len(self.specimen)):
             if np.random.rand() < self.ga_parameters['mutation_percent_probability'] / 100:
-                species = specimen[i]
+                species = copy.deepcopy(self.specimen[i])
                 if self.ga_parameters['num_float_genes'] > 0:
-                    for j in range(len(species[3])):
+                    for j in range(time_dur):
                         for k in range(len(self.sw_parameters['mes_nodes_names']) - \
                                        len(self.sw_parameters['tanks_names'])):
+
                             head_WMO = species[4][k][j]
+
                             head_min_lev = self.sw_parameters['min_head_lev'][k]
                             head_max_level = self.sw_parameters['max_head_lev'][k]
-                            delta_min_head = head_min_lev - head_WMO
-                            delta_max_head = head_WMO - head_max_level
+
+                            delta_min_head = - head_min_lev + head_WMO
+                            delta_max_head = - head_WMO + head_max_level
                             if k == 0:
-                                if  delta_min_head < 0:
+                                if delta_min_head < 0:
                                     species[2][j] += np.random.rand() * self.ga_parameters[
                                     'specialize_operators_head_delta_value']
+
                                 if delta_max_head < 0:
                                     species[2][j] -= np.random.rand() * self.ga_parameters[
                                         'specialize_operators_head_delta_value']
@@ -255,6 +263,7 @@ class GA_function:
                                 if  delta_min_head < 0:
                                     species[2][j + 2 * time_dur] += np.random.rand() * self.ga_parameters[
                                     'specialize_operators_head_delta_value']
+
                                 if delta_max_head < 0:
                                     species[2][j + 2 * time_dur] -= np.random.rand() * self.ga_parameters[
                                         'specialize_operators_head_delta_value']
@@ -265,6 +274,7 @@ class GA_function:
                                     'specialize_operators_head_delta_value']/2
                                     species[2][j + 2 * time_dur] += np.random.rand() * self.ga_parameters[
                                     'specialize_operators_head_delta_value']
+
                                 if delta_max_head < 0:
                                     species[2][j + time_dur] -= np.random.rand() * self.ga_parameters[
                                         'specialize_operators_head_delta_value']/2
@@ -272,17 +282,17 @@ class GA_function:
                                         'specialize_operators_head_delta_value']
 
                             if k == 4:
-                                if  delta_min_head < 0:
+                                if delta_min_head < 0:
                                     species[2][j + time_dur] += np.random.rand() * self.ga_parameters[
                                     'specialize_operators_head_delta_value']
                                     species[2][j + 2 * time_dur] += np.random.rand() * self.ga_parameters[
                                     'specialize_operators_head_delta_value']/2
+
                                 if delta_max_head < 0:
                                     species[2][j + time_dur] -= np.random.rand() * self.ga_parameters[
                                         'specialize_operators_head_delta_value']
                                     species[2][j + 2 * time_dur] -= np.random.rand() * self.ga_parameters[
                                         'specialize_operators_head_delta_value']/2
-
 
                         if species[2][j] > high_float_val:
                             species[2][j] = high_float_val
@@ -292,6 +302,7 @@ class GA_function:
                 self.pop['mate_mut'].append(species)
 
 
+
     def ga_crossover(self):
 
         #low_int_val = self.ga_parameters['pop_int_range_low']
@@ -299,14 +310,20 @@ class GA_function:
         #low_float_val = self.ga_parameters['pop_float_range_low']
         #high_float_val = self.ga_parameters['pop_float_range_high']
 
+        temp_cross = copy.deepcopy(self.pop['pop'])
+
+        for te in self.pop['mate_mut']:
+            temp_cross.append(te)
+
         self.pop['mate_cros'] = []
         if self.ga_parameters['crossover_type'] == 'single_point':
             for i in range(self.ga_parameters['num_specimen']):
                 if np.random.rand() < self.ga_parameters['crossover_percent_probability'] / 100:
-                    specimen_to_mutation = np.random.randint(1, self.ga_parameters['num_specimen'], size=(2,))
 
-                    specimen_0 = list(copy.deepcopy(self.pop['pop'][specimen_to_mutation[0]]))
-                    specimen_1 = list(copy.deepcopy(self.pop['pop'][specimen_to_mutation[1]]))
+                    specimen_to_mutation = np.random.randint(1, len(temp_cross), size=(2,))
+
+                    specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_mutation[0]]))
+                    specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_mutation[1]]))
 
                     if self.ga_parameters['num_int_genes'] > 0:
                         cros_position = np.random.randint(1, self.ga_parameters['num_int_genes'], size=(1,))
@@ -335,27 +352,56 @@ class GA_function:
 
         return 1
 
+    def add_data_to_pop(self,epa,population_name,specimen_number):
+
+        #3
+        self.pop[population_name][specimen_number][3] = epa.data['error_output'][0]
+
+        temp_head = []#4
+        for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names'])):
+            temp_head.append(epa.data['head_output_' + epa.sw_parameters['mes_nodes_names'][i]][0])
+
+        self.pop[population_name][specimen_number][4] = temp_head
+
+        temp_tank = []#5
+        for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names']),
+                       len(epa.sw_parameters['mes_nodes_names'])):
+            temp_tank.append(epa.data['head_output_' + epa.sw_parameters['mes_nodes_names'][i]][0])
+
+        self.pop[population_name][specimen_number][5] = temp_tank
+
+        temp_flow = []#6
+        for i in range(len(epa.sw_parameters['mes_links_names'])):
+            temp_flow.append(epa.data['flow_output_' + epa.sw_parameters['mes_links_names'][i]][0])
+
+        self.pop[population_name][specimen_number][6] = temp_flow
+
     def ga_fitnes_function(self):
 
         if self.pop['num_iteration'] == 0:
             keys_list = ['pop']
         else:
             keys_list = ['pop', 'mate_mut', 'mate_cros']
-        for key in keys_list:
-            for i in tqdm(range(len(self.pop[key]))):
-                species = self.pop[key][i][2]
+        for k in range(len(keys_list)):
+            for i in (range(len(self.pop[keys_list[k]]))):
+                species = self.pop[keys_list[k]][i][2]
                 self.ep.get_data(species)
 
-                self.add_data_to_pop(self.ep, key, i)
+                self.add_data_to_pop(self.ep, keys_list[k], i)
 
+                penalties = {}
 
-                fitnes_fun = self.ga_parameters['penalty_function_weights'][0] * self.error_penalty_function(self.ep) +\
-                    self.ga_parameters['penalty_function_weights'][1] * self.head_penalty_function(self.ep) +\
-                    self.ga_parameters['penalty_function_weights'][2] * self.flow_penalty_function(self.ep) +\
-                    self.ga_parameters['penalty_function_weights'][3] * self.tank_penalty_function(self.ep) +\
-                    self.ga_parameters['penalty_function_weights'][4] * self.tank_final_state_penalty_function(self.ep)
+                penalties['error'] = self.ga_parameters['penalty_function_weights'][0] * self.error_penalty_function(self.ep)
+                penalties['head'] = self.ga_parameters['penalty_function_weights'][1] * self.head_penalty_function(self.ep)
+                penalties['flow'] = self.ga_parameters['penalty_function_weights'][2] * self.flow_penalty_function(self.ep)
+                penalties['tank'] = self.ga_parameters['penalty_function_weights'][3] * self.tank_penalty_function(self.ep)
+                penalties['tank_final'] = self.ga_parameters['penalty_function_weights'][4] * self.tank_final_state_penalty_function(self.ep)
 
-                self.pop[key][i][0] = fitnes_fun
+                fitnes_fun =  penalties['error'] + penalties['head'] + penalties['flow'] + penalties['tank'] + penalties['tank_final']
+
+                self.pop[keys_list[k]][i][0] = fitnes_fun
+                self.pop[keys_list[k]][i][7] = penalties
+
         return self.pop
 
     def ga_selection(self):
@@ -363,13 +409,23 @@ class GA_function:
         if self.ga_parameters['parent_selection_type'] == 'first_n':
             keys_list = ['pop', 'mate_mut', 'mate_cros']
             tuple_list = []
+            ii=0
             for key in keys_list:
                 for i in range(len(self.pop[key])):
+                    ii+=1
                     tuple_list.append(tuple((self.pop[key][i][0],self.pop[key][i][1],self.pop[key][i][2],\
                                              self.pop[key][i][3],self.pop[key][i][4],self.pop[key][i][5],\
-                                             self.pop[key][i][6])))
+                                             self.pop[key][i][6],self.pop[key][i][7])))
+
+            pomoc = []
+            for i in range(len(tuple_list)):
+                pomoc.append(tuple_list[i][0])
 
             sorted_fitnes_fun = sorted(tuple_list, key=lambda x: x[0])[:self.ga_parameters['num_specimen']]
+
+            pomoc = []
+            for i in range(len(sorted_fitnes_fun)):
+                pomoc.append(sorted_fitnes_fun[i][0])
 
             self.pop['pop'] = []
 
@@ -378,6 +434,7 @@ class GA_function:
                 for j in range(len(sorted_fitnes_fun[0])):
                     temp.append(sorted_fitnes_fun[i][j])
                 self.pop['pop'].append(temp)
+
             self.ga_statistics()
 
         return 0
@@ -397,29 +454,6 @@ class GA_function:
 
         self.pop['mean_pop_value'].append(mean(population_fun_fitnes))
 
-
-    def add_data_to_pop(self,epa,population_name,specimen_number):
-
-        self.pop[population_name][specimen_number].append(epa.data['error_output'][0])
-
-        temp_head = []
-        for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names'])):
-            temp_head.append(epa.data['head_output_' + epa.sw_parameters['mes_nodes_names'][i]][0])
-
-        self.pop[population_name][specimen_number].append(temp_head)
-
-        temp_tank = []
-        for i in range(len(epa.sw_parameters['mes_nodes_names']) - len(epa.sw_parameters['tanks_names']),
-                       len(epa.sw_parameters['mes_nodes_names'])):
-            temp_tank.append(epa.data['head_output_' + epa.sw_parameters['mes_nodes_names'][i]][0])
-
-        self.pop[population_name][specimen_number].append(temp_tank)
-
-        temp_flow = []
-        for i in range(len(epa.sw_parameters['mes_links_names'])):
-            temp_flow.append(epa.data['flow_output_' + epa.sw_parameters['mes_links_names'][i]][0])
-        self.pop[population_name][specimen_number].append(temp_flow)
-
     def ga_stop_criterion(self):
 
         output = 1
@@ -431,8 +465,13 @@ class GA_function:
             last_solutions = self.pop['best_solutions'][-self.ga_parameters['stop_criterion_min_generations']:]
 
             for i in range(self.ga_parameters['stop_criterion_min_generations']-1, 0, -1):
+                print(last_solutions[i])
 
                 diff_fitness_function.append(abs(last_solutions[i - 1] - last_solutions[i]))
+
+
+            #print(sum(diff_fitness_function) , self.ga_parameters['stop_criterion_min_change'] ,\
+            #sum(self.ep.data['error_output'][0]))
 
             if sum(diff_fitness_function) < self.ga_parameters['stop_criterion_min_change'] and \
                 sum(self.ep.data['error_output'][0]) < 0:
@@ -440,6 +479,48 @@ class GA_function:
                 output = 0
 
         return output
+
+    def print_statistics(self):
+        print(f"It. num.: {ga.pop['num_iteration']}, "
+              f"Mean: {ga.pop['mean_pop_value'][-1]:.2f},"
+              f" Best: {ga.pop['last_best_solution'][0]:.2f}, "
+              f"Head:{ga.pop['last_best_solution'][7]['head']:.2f}, "
+              f"Flow:{ga.pop['last_best_solution'][7]['flow']:.2f}, "
+              f"Tank:{ga.pop['last_best_solution'][7]['tank']:.2f}, "
+              f"Tank final:{ga.pop['last_best_solution'][7]['tank_final']:.2f}")
+
+    def ga_init_plot_fitness(self):
+        self.plot = {}
+        self.plot['best_sol'] = self.pop['best_solutions']
+        self.plot['mean_sol'] = self.pop['mean_pop_value']
+        self.plot['x'] = range(len(self.plot['best_sol']))
+
+        self.plot['fig'] = plt.figure()
+        self.plot['ax'] = self.plot['fig'].add_subplot(111)
+        self.plot['line1'], = self.plot['ax'].plot(self.plot['x'], self.plot['best_sol'])
+        self.plot['line2'], = self.plot['ax'].plot(self.plot['x'], self.plot['mean_sol'])
+
+        self.plot['plt'] = plt
+        self.plot['plt'].xlabel("X-axis")
+        self.plot['plt'].ylabel("Y-axis")
+        self.plot['plt'].title("Updating plot...")
+
+    def ga_plot_fitness(self):
+
+        self.plot['x'] = range(len(self.plot['best_sol']))
+
+        self.plot['line1'].set_xdata(self.plot['x'])
+        self.plot['line1'].set_ydata(self.plot['best_sol'])
+        self.plot['line2'].set_xdata(self.plot['x'])
+        self.plot['line2'].set_ydata(self.plot['mean_sol'])
+
+        self.plot['fig'].canvas.draw()
+
+        self.plot['fig'].canvas.flush_events()
+
+        time.sleep(0.1)
+
+        self.plot['fig'].show()
 
 def save_variabele_space_to_file(file_name, input_dictionary):
 
@@ -489,9 +570,9 @@ if __name__ == '__main__':
         sw_parameters['time_duration_s'] = sw_parameters['time_duration_h'] * 3600  ##[s]
 
         ga_parameters = {
-            'penalty_function_weights': [1e9, 100, 100, 1000, 100],
+            'penalty_function_weights': [1e9, 100, 100, 10, 10],
             'num_generations': 200,
-            'num_specimen': 150,
+            'num_specimen': 50,
             'num_float_genes': sw_parameters['num_pumps'] * sw_parameters['time_duration_h'],
             'pop_int_range_low': 0,
             'pop_int_range_high': 1,
@@ -500,8 +581,9 @@ if __name__ == '__main__':
             'crossover_percent_probability': 40,
             'crossover_type': 'single_point',  # two_points , uniform , scattered
             'mutation_type': 'random',  # random, inversion , scramble ,
-            'specialize_operators_error_delta_value': 0.25,
-            'specialize_operators_head_delta_value': 0.2,
+            'mutation_random_delta': 0.05,
+            'specialize_operators_error_delta_value': 0.04,
+            'specialize_operators_head_delta_value': 0.04,
             'mutation_percent_genes': 20,
             'mutation_percent_probability': 90,
             'pop_float_range_low': 0.5,
@@ -516,6 +598,8 @@ if __name__ == '__main__':
 
         ga.ga_fitnes_function()
 
+        #ga.ga_init_plot_fitness()
+
         for i in range(ga.ga_parameters['num_generations']):
 
             ga.ga_mutation()
@@ -526,10 +610,11 @@ if __name__ == '__main__':
 
             ga.ga_selection()
 
-            print(f"Iteration number: {ga.pop['num_iteration']}, Mean population value: {ga.pop['mean_pop_value'][-1]},"
-                  f" Best solution: {ga.pop['last_best_solution'][0]}")
-
             save_variabele_space_to_file('last_best_pop.txt', ga.pop)
+
+            ga.print_statistics()
+
+            #ga.ga_plot_fitness()
 
             if ga.ga_stop_criterion() == 0:
 
