@@ -6,7 +6,7 @@ class Epa:
         self.sw_parameters = sw_parameters
 
     def open_epanet(self):
-        ret = et.ENopen(self.sw_parameters['file_name'], "Net3.rpt", "")
+        ret = et.ENopen(self.sw_parameters.file_name[0], "Net3.rpt", "")
 
     def close_epanet(self):
         ret = et.ENclose()
@@ -23,55 +23,55 @@ class Epa:
 
     def get_link_index(self):
         link_index = []
-        for ln in self.sw_parameters['mes_links_names']:
+        for ln in self.sw_parameters.mes['links_names']:
             ret, lx = et.ENgetlinkindex(ln)
             link_index.append(lx)
         self.link_index = link_index
 
         pump_index = []
-        for ln in self.sw_parameters['pumps_names']:
+        for ln in self.sw_parameters.pumps['names']:
             ret, lx = et.ENgetlinkindex(ln)
             pump_index.append(lx)
         self.pumps_index = pump_index
 
     def get_node_index(self):
         node_index = []
-        for nn in self.sw_parameters['mes_nodes_names']:
+        for nn in self.sw_parameters.mes['nodes_names']:
             ret, nx = et.ENgetnodeindex(nn)
             node_index.append(nx)
             self.node_index = node_index
 
         tank_index = []
-        for nn in self.sw_parameters['tanks_names']:
+        for nn in self.sw_parameters.tanks['names']:
             ret, nx = et.ENgetnodeindex(nn)
             tank_index.append(nx)
             self.tank_index = tank_index
 
     def get_pattern_index(self):
         pattern_index = []
-        for pn in self.sw_parameters['pumps_patterns_names']:
+        for pn in self.sw_parameters.pumps['patterns_names']:
             ret, px = et.ENgetpatternindex(pn)
             pattern_index.append(px)
         self.pumps_pattern_index = pattern_index
 
         pattern_index = []
-        for pn in self.sw_parameters['demand_patterns_names']:
+        for pn in self.sw_parameters.demand['patterns_names']:
             ret, px = et.ENgetpatternindex(pn)
             pattern_index.append(px)
         self.demand_pattern_index = pattern_index
 
     def set_time_duration(self):
-        et.ENsettimeparam(0, self.sw_parameters['time_duration_s'])
+        et.ENsettimeparam(0, self.sw_parameters.time['duration_s'])
 
     def set_tank_inital(self):
-        for tank_in, initial_val in zip(self.tank_index, self.sw_parameters['initial_tanks_lev']):
+        for tank_in, initial_val in zip(self.tank_index, self.sw_parameters.tanks['initial_lev']):
             et.ENsetnodevalue(tank_in, 8, initial_val)
 
     def set_patern_values(self,species):
-        for i in range(self.sw_parameters['num_pumps']):
-             for j in range(self.sw_parameters['time_duration_h']):
+        for i in range(self.sw_parameters.number['pumps']):
+             for j in range(self.sw_parameters.time['duration_h']):
                  et.ENsetpatternvalue(self.pumps_pattern_index[i], j + 1, species[i*\
-                                                                        self.sw_parameters['time_duration_h'] + j])
+                                                                        self.sw_parameters.time['duration_h'] + j])
 
     ''' for i in range(self.parameters['num_demands']):
             for j in range(self.parameters['time_duration_h']):
@@ -93,25 +93,25 @@ class Epa:
 
         self.data['time_output'] = []
 
-        for mes_node in self.sw_parameters['mes_nodes_names']:
+        for mes_node in self.sw_parameters.mes['nodes_names']:
             self.data['head_output_' + mes_node] = []
 
-        for mes_link in self.sw_parameters['mes_links_names']:
+        for mes_link in self.sw_parameters.mes['links_names']:
             self.data['flow_output_' + mes_link] = []
 
-        for mes_tank in self.sw_parameters['tanks_names']:
+        for mes_tank in self.sw_parameters.tanks['names']:
             self.data['tank_output_' + mes_tank] = []
 
-        for pumps_name in self.sw_parameters['pumps_names']:
+        for pumps_name in self.sw_parameters.pumps['names']:
             self.data['energy_output_' + pumps_name] = []
 
-        for tank_input in self.sw_parameters['tanks_names']:
+        for tank_input in self.sw_parameters.tanks['names']:
             self.data['tank_input_' + tank_input] = []
 
-        for pump_input in self.sw_parameters['pumps_names']:
+        for pump_input in self.sw_parameters.pumps['names']:
             self.data['pump_input_' + pump_input] = []
 
-        for demand_input in self.sw_parameters['demand_patterns_names']:
+        for demand_input in self.sw_parameters.demand['patterns_names']:
             self.data['demand_input_' + demand_input] = []
 
     def get_hydraulic_values(self):
@@ -119,27 +119,28 @@ class Epa:
         et.ENopenH()
         et.ENinitH(0)
         time = []
-        flow = [[] for i in range(self.sw_parameters['num_mes_links'])]
+        flow = [[] for i in range(self.sw_parameters.number['mes_links'])]
         head = [[] for i in range(len(self.node_index))]
-        energy = [[] for i in range(self.sw_parameters['num_pumps'])]
+        energy = [[] for i in range(self.sw_parameters.number['pumps'])]
         error = []
         while True:
             ret, t = et.ENrunH()
-            if t % self.sw_parameters['hydraulic_step_s'] == 0:
+            if t % self.sw_parameters.time['hydraulic_step_s'] == 0:
                 error.append(ret)
                 time.append(t)
-                if self.sw_parameters['hydraulic_monitor_values'][0] == 'flow':
+
+                if 'flow' in self.sw_parameters.hydraulic_monitor_values:
                     for i in range(0, len(self.link_index)):
                         ret, p = et.ENgetlinkvalue(self.link_index[i], et.EN_FLOW)
                         flow[i].append(p)
 
-                if self.sw_parameters['hydraulic_monitor_values'][2] == 'head':
+                if 'head' in self.sw_parameters.hydraulic_monitor_values:
                     for i in range(0, len(self.node_index)):
                         ret, p = et.ENgetnodevalue(self.node_index[i], et.EN_HEAD)
                         head[i].append(p)
 
-                if self.sw_parameters['hydraulic_monitor_values'][1] == 'energy':
-                    for i in range(0, self.sw_parameters['num_pumps']):
+                if 'energy' in self.sw_parameters.hydraulic_monitor_values:
+                    for i in range(0, self.sw_parameters.number['pumps']):
                         ret, p = et.ENgetlinkvalue(self.pumps_index[i], et.EN_ENERGY)
                         energy[i].append(p)
 
@@ -151,25 +152,25 @@ class Epa:
 
     def insert_data(self, head, flow, energy, error, time):
 
-        for ii in range(0, self.sw_parameters['num_mes_nodes'] - self.sw_parameters['num_tanks'] + 1):
-            self.data['head_output_' + self.sw_parameters['mes_nodes_names'][ii]].append(head[ii][:-1])
+        for ii in range(0, self.sw_parameters.number['mes_nodes'] - self.sw_parameters.number['tanks'] + 1):
+            self.data['head_output_' + self.sw_parameters.mes['nodes_names'][ii]].append(head[ii][:-1])
 
-        for ii in range(self.sw_parameters['num_mes_nodes'] - self.sw_parameters['num_tanks'],
-                        self.sw_parameters['num_mes_nodes']):
-            self.data['tank_output_' + self.sw_parameters['tanks_names'][
-                self.sw_parameters['num_mes_nodes'] - ii - 1]].append(head[ii][1:])
+        for ii in range(self.sw_parameters.number['mes_nodes'] - self.sw_parameters.number['tanks'],
+                        self.sw_parameters.number['mes_nodes']):
+            self.data['tank_output_' + self.sw_parameters.tanks['names'][
+                self.sw_parameters.number['mes_nodes'] - ii - 1]].append(head[ii][:-1])
 
-        for ii in range(0, self.sw_parameters['num_tanks']):
+        for ii in range(0, self.sw_parameters.number['tanks']):
             temp_tank_init = []
-            for i in range(0, self.sw_parameters['time_duration_h']):
-                temp_tank_init.append(self.sw_parameters['initial_tanks_lev'][ii])
-            self.data['tank_input_' + self.sw_parameters['tanks_names'][ii]].append(temp_tank_init)
+            for i in range(0, self.sw_parameters.time['duration_h']):
+                temp_tank_init.append(self.sw_parameters.tanks['initial_lev'][ii])
+            self.data['tank_input_' + self.sw_parameters.tanks['names'][ii]].append(temp_tank_init)
 
-        for ii in range(self.sw_parameters['num_mes_links']):
-            self.data['flow_output_' + self.sw_parameters['mes_links_names'][ii]].append(flow[ii][:-1])
+        for ii in range(self.sw_parameters.number['mes_links']):
+            self.data['flow_output_' + self.sw_parameters.mes['links_names'][ii]].append(flow[ii][:-1])
 
-        for ii in range(self.sw_parameters['num_pumps']):
-            self.data['energy_output_' + self.sw_parameters['pumps_names'][ii]].append(energy[ii][:-1])
+        for ii in range(self.sw_parameters.number['pumps']):
+            self.data['energy_output_' + self.sw_parameters.pumps['names'][ii]].append(energy[ii][:-1])
 
         self.data['time_output'].append(time[:-1])
 
@@ -185,11 +186,8 @@ class Epa:
         self.set_tank_inital()
         self.set_patern_values(species)
         [flow, energy, head, error, time] = self.get_hydraulic_values()
-
         self.insert_data(head, flow, energy, error, time)
 
         self.close_epanet()
 
 
-if __name__ == '__main__':
-    print('To jest biblioteka pomocna przy generowaniu wyników z Epanetu')
