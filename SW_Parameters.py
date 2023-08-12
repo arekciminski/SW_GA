@@ -18,12 +18,14 @@ class sw_par:
             'hydraulic_step_s': 3600}
 
     time['duration_s'] = time['duration_h'] * time['hydraulic_step_s']  # [s]
-
+    mes_head_index = {'pump': [0,1,2],
+                      'tank': [5],
+                      'inside': [3,4]}
 
     hydraulic_monitor_values = ['flow', 'energy', 'head']
 
-    level = {'min_head': [100, 100, 100, 196, 195],
-             'max_head': [185, 205, 205, 205, 205],
+    level = {'min_head': [100, 100, 100, 196, 195, 167.2],
+             'max_head': [185, 205, 205, 205, 205, 170.2],
              'min_tank' : [167.2],
              'max_tank': [170.8],
              'min_flow': [0, 0, 0],

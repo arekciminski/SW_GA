@@ -1,4 +1,4 @@
-# importing libraries
+'''# importing libraries
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -44,4 +44,32 @@ for i in range(50):
     # currently waiting have been processed
     figure.canvas.flush_events()
 
-    time.sleep(0.1)
+    time.sleep(0.1)'''
+# SuperFastPython.com
+# example of a parallel for loop with multiple arguments
+from time import sleep
+from random import random
+from multiprocessing import Pool
+
+
+# task to execute in another process
+def task(arg1, arg2, arg3):
+    # generate a value between 0 and 1
+    value = random()
+    # block for a fraction of a second to simulate work
+    sleep(value)
+    # return the generated value
+    return value
+
+
+# entry point for the program
+if __name__ == '__main__':
+    # create the process pool
+    with Pool() as pool:
+        # prepare arguments
+        items = [[i, i * 2, i * 3] for i in range(10)]
+        print(items)
+        # call the same function with different data in parallel
+        for result in pool.starmap(task, items):
+            # report the value to show progress
+            print(result)
