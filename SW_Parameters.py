@@ -6,9 +6,22 @@ class sw_par:
     tanks = {'names': ['180'],
              'initial_lev': [2.58]}
 
+    lc = 0.84
+    hc = 2*lc
+    energy_taryf = [lc]*6
+    energy_taryf.extend([hc]*4)
+    energy_taryf.extend([lc] * 4)
+    energy_taryf.extend([hc] * 4)
+    energy_taryf.extend([lc] * 6)
+
     mes = {'links_names': ['F1', 'K1', 'P1'],
             'nodes_names': ['001', '002', '055', '083', '158', '180']}
     mes['tank_names'] = tanks['names']
+
+    mes_head_index = {'pump': [0, 1, 2],
+                      'tank': [5],
+                      'inside': [3, 4]}
+
     pumps = {'names': ['F1', 'K1', 'P1'],
              'patterns_names': ['f1', 'k1', 'p1']}
 
@@ -18,13 +31,10 @@ class sw_par:
             'hydraulic_step_s': 3600}
 
     time['duration_s'] = time['duration_h'] * time['hydraulic_step_s']  # [s]
-    mes_head_index = {'pump': [0,1,2],
-                      'tank': [5],
-                      'inside': [3,4]}
 
     hydraulic_monitor_values = ['flow', 'energy', 'head']
 
-    level = {'min_head': [100, 100, 100, 196, 195, 167.2],
+    level = {'min_head': [150, 150, 150, 196, 195, 167.2],
              'max_head': [185, 205, 205, 205, 205, 170.2],
              'min_tank' : [167.2],
              'max_tank': [170.8],
