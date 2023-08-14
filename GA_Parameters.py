@@ -6,8 +6,8 @@ class ga_par:
                                 0.1,
                                 5000,
                                 100,
-                                10000       ,
-                                5000,
+                                100000,
+                                10000,
                                 1000],
     number = {'generations': 500,
            'specimen': 100,
@@ -19,12 +19,12 @@ class ga_par:
                  'n_type_precent': 1},#'first_n',roulete  # rws, sus, random, tournament
     crossover = {'percent_probability': 80,
                  'type': 'single_point'}  # two_points , uniform , scattered
-    specialize_operators ={'error_delta_value': 0.1,
-                           'head_delta_value': 0.1,
-                           'flow_delta_value': 0.1,
-                           'end_tank_level_horizon': 5,
-                           'delta_initial_end_tank_level': 0.5,
-                           'max_delta_head': 10}
+    specialize_operators ={'error_delta_value': 0.3,
+                           'head_delta_value': 0.2,
+                           'flow_delta_value': 0.2,
+                           'end_tank_level_horizon': 8,
+                           'delta_initial_end_tank_level': 1,
+                           'max_delta_head': 5}
     mutation = {'percent_genes': 10,
                 'percent_probability': 90,
                 'type': 'random',  # random, inversion , scramble ,

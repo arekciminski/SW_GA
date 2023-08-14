@@ -7,6 +7,8 @@ import numpy as np
 from SW_Parameters import sw_par
 from GA_Parameters import ga_par
 
+import datetime
+
 import time
 
 from  multiprocessing import Pool
@@ -223,30 +225,46 @@ class GA_function:
                         flow_pump_karolewo = species[6][0][j]
                         flow_pump_funka = species[6][1][j]
                         flow_pump_plac = species[6][2][j]
-                        if error_value > 4 and flow_pump_karolewo == 0 and flow_pump_plac > 0:
+                        if error_value > 4 and flow_pump_karolewo < 0.1 and flow_pump_plac > 0.1:
                             species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
                             species[2][j + 2 * time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
 
-                        if error_value > 4 and flow_pump_funka == 0:
-                            if random.random() < 0.5:
+                        if error_value > 4 and flow_pump_funka < 0.1:
                                 species[2][j] += random.random() * self.ga_parameters.specialize_operators[
-                                    'error_delta_value']*2
-                            else:
-                                species[2][j] = 1
+                                    'error_delta_value']
+
+                        if error_value > 4 and flow_pump_plac < 0.1:
+                                species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
+                                    'error_delta_value']
+                                species[2][j + 2*time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                                    'error_delta_value']
+
+                        if error_value > 4 and flow_pump_karolewo < 0.1:
+                                species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                                    'error_delta_value']
+                                species[2][j + 2*time_dur] -= random.random() * self.ga_parameters.specialize_operators[
+                                    'error_delta_value']
 
 
-                        if error_value > 4 and flow_pump_plac == 0 and flow_pump_karolewo > 0:
+                        if error_value > 4 and flow_pump_plac < 0.1 and flow_pump_karolewo < 0.1:
+                            species[2][j+ 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                                'error_delta_value']
+                            species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                                'error_delta_value']
+
+                        if error_value > 4 and flow_pump_plac < 0.1 and flow_pump_funka < 0.1:
+                            species[2][j+ 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                                'error_delta_value']
+                            species[2][j ] += random.random() * self.ga_parameters.specialize_operators[
+                                'error_delta_value']
+
+
+                        if error_value > 4 and flow_pump_plac < 0.1 and flow_pump_karolewo > 0.1:
                             species[2][j + 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
                             species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
-                                'error_delta_value']
-
-                        if error_value > 4 and flow_pump_plac == 0 and flow_pump_karolewo == 0:
-                            species[2][j + 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
-                                'error_delta_value']
-                            species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
@@ -287,18 +305,32 @@ class GA_function:
                                 if  delta_min_head < 0:
                                     species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']
+                                    species[2][j + 2*time_dur] -= random.random() * self.ga_parameters.specialize_operators[
+                                    'head_delta_value']/2
+
+
                                 if delta_max_head < 0:
                                     species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                         'head_delta_value']
+                                    species[2][j + 2*time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                                    'head_delta_value']/2
+
+
 
                             if k == 2:
                                 if  delta_min_head < 0:
                                     species[2][j + 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']
+                                    species[2][j + time_dur] -= random.random() * \
+                                                                self.ga_parameters.specialize_operators[
+                                                                    'head_delta_value']/2
 
                                 if delta_max_head < 0:
                                     species[2][j + 2 * time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                         'head_delta_value']
+                                    species[2][j + time_dur] += random.random() * \
+                                                                self.ga_parameters.specialize_operators[
+                                                                    'head_delta_value']/2
 
                             if k == 3:
                                 if  delta_min_head < 0:
@@ -335,7 +367,7 @@ class GA_function:
                                                                 'head_delta_value']
                                     species[2][j + 2*time_dur] += random.random() \
                                                                 * self.ga_parameters.specialize_operators[
-                                                                'head_delta_value']
+                                                                'head_delta_value']/2
                                 if delta_max_head < 0:
                                     species[2][j] -= random.random() * \
                                                      self.ga_parameters.specialize_operators['head_delta_value']
@@ -344,7 +376,7 @@ class GA_function:
                                                                     'head_delta_value']
                                     species[2][j + 2 * time_dur] -= random.random() \
                                                                     * self.ga_parameters.specialize_operators[
-                                                                        'head_delta_value']
+                                                                        'head_delta_value']/2
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -443,7 +475,6 @@ class GA_function:
                                                                     self.ga_parameters.specialize_operators['head_delta_value']
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
-
 
     def ga_mutiation_SGO_flow(self):
 
@@ -808,6 +839,7 @@ class GA_function:
         self.figure.text(0.01, 0.95, self.print_name, fontsize=12, bbox ={'facecolor':'white'})
         self.figure.text(0.01, 0.92, ' '*100, fontsize=12, bbox=dict(facecolor= 'white', edgecolor = 'white'))
         self.figure.text(0.01, 0.92, error, fontsize=12, bbox={'facecolor': 'white'})
+
     def ga_plot(self,i, epa):
 
         self.plot_fitnes_values([0,0],i)
@@ -892,8 +924,10 @@ if __name__ == '__main__':
             ga.ga_fitnes_function()
 
             ga.ga_selection()
-
-            save_variabele_space_to_file('last_best_pop.txt', ga.pop)
+            data = str(datetime.datetime.now()).split('.')
+            data = data[0].replace(':','_').replace(' ','_')
+            print(data)
+            save_variabele_space_to_file('last_best_pop_'+data + '.txt', ga.pop)
 
             ga.print_statistics()
 
