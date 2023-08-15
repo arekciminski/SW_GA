@@ -1,6 +1,9 @@
 from SW_Parameters import sw_par
-
+import datetime
 class ga_par:
+    data = str(datetime.datetime.now()).split('.')
+    data = data[0].replace(':', '_').replace(' ', '_')
+
     #[error, energy, head, flow, tank, tank_initial, accelaration pump head]
     penalty_function_weights = [1e9,
                                 0.1,
@@ -10,7 +13,7 @@ class ga_par:
                                 10000,
                                 1000],
     number = {'generations': 500,
-           'specimen': 100,
+           'specimen': 50,
            'float_genes': len(sw_par.pumps['names']) * sw_par.time['duration_h'],
             'int_genes': 0}
 
@@ -20,8 +23,8 @@ class ga_par:
     crossover = {'percent_probability': 80,
                  'type': 'single_point'}  # two_points , uniform , scattered
     specialize_operators ={'error_delta_value': 0.3,
-                           'head_delta_value': 0.2,
-                           'flow_delta_value': 0.2,
+                           'head_delta_value': 0.3,
+                           'flow_delta_value': 0.3,
                            'end_tank_level_horizon': 8,
                            'delta_initial_end_tank_level': 1,
                            'max_delta_head': 5}

@@ -2,12 +2,12 @@ import copy
 import random
 from statistics import mean
 
+import pickle
+
 import numpy as np
 
 from SW_Parameters import sw_par
 from GA_Parameters import ga_par
-
-import datetime
 
 import time
 
@@ -135,6 +135,15 @@ class GA_function:
     def penalty_function_error(self,epa):
 
         error_values = epa.data['error_output'][0]
+
+        for j in range(epa.sw_parameters.time['duration_h']):
+            k = 0
+            for name in epa.sw_parameters.mes['links_names']:
+                if epa.data['flow_output_' + name][0][j] <= 0 :
+                    k += 1
+            if error_values[j] > 0:
+                error_values[j] = error_values[j] ** k
+
         return sum(error_values)
 
     def penalty_function_energy(self,epa):
@@ -235,7 +244,7 @@ class GA_function:
                                 species[2][j] += random.random() * self.ga_parameters.specialize_operators[
                                     'error_delta_value']
 
-                        if error_value > 4 and flow_pump_plac < 0.1:
+                        '''if error_value > 4 and flow_pump_plac < 0.1:
                                 species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                     'error_delta_value']
                                 species[2][j + 2*time_dur] += random.random() * self.ga_parameters.specialize_operators[
@@ -246,7 +255,7 @@ class GA_function:
                                     'error_delta_value']
                                 species[2][j + 2*time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                     'error_delta_value']
-
+                        '''
 
                         if error_value > 4 and flow_pump_plac < 0.1 and flow_pump_karolewo < 0.1:
                             species[2][j+ 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
@@ -254,11 +263,13 @@ class GA_function:
                             species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
 
-                        if error_value > 4 and flow_pump_plac < 0.1 and flow_pump_funka < 0.1:
-                            species[2][j+ 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
+                        if error_value > 4 and flow_pump_plac > 0.1 and flow_pump_funka < 0.1:
+                            species[2][j+ 2 * time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
-                            species[2][j ] += random.random() * self.ga_parameters.specialize_operators[
+                            species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
+                            species[2][j - 1] -= random.random() * self.ga_parameters.specialize_operators[
+                                                                    'error_delta_value']
 
 
                         if error_value > 4 and flow_pump_plac < 0.1 and flow_pump_karolewo > 0.1:
@@ -888,16 +899,12 @@ def prarallel_com(key_list, i):
 
 def save_variabele_space_to_file(file_name, input_dictionary):
 
-    key = 'last_best_solution'
+    key = 'pop'
     temp_date = []
-    temp_date.append(f"{key}_function_value = {input_dictionary[key][0]}\n")
-    temp_date.append(f"{key}_integer_gene = {str(input_dictionary[key][1]).replace(' ',';')}\n")
+    for i in range(ga_par.number['specimen']):
+        temp_date.append(f"{input_dictionary['pop'][i][2:]}\n")
 
-    temp_float_gene = str(list(input_dictionary[key][2])).replace(',',';')
-    temp_date.append(f"{key}_float_gene = {temp_float_gene}\n")
-
-
-    with open(file_name,'w') as f:
+    with open(file_name,'a') as f:
         f.writelines(temp_date)
         f.close()
 
@@ -924,10 +931,8 @@ if __name__ == '__main__':
             ga.ga_fitnes_function()
 
             ga.ga_selection()
-            data = str(datetime.datetime.now()).split('.')
-            data = data[0].replace(':','_').replace(' ','_')
-            print(data)
-            save_variabele_space_to_file('last_best_pop_'+data + '.txt', ga.pop)
+
+            save_variabele_space_to_file('last_best_pop_'+ga_par.data + '.txt', ga.pop)
 
             ga.print_statistics()
 
