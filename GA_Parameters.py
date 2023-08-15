@@ -23,9 +23,10 @@ class ga_par:
     crossover = {'percent_probability': 80,
                  'type': 'single_point'}  # two_points , uniform , scattered
     specialize_operators ={'error_delta_value': 0.3,
-                           'head_delta_value': 0.3,
-                           'flow_delta_value': 0.3,
+                           'head_delta_value': 0.2,
+                           'flow_delta_value': 0.2,
                            'end_tank_level_horizon': 8,
+                           'bound_tank_level_horizon': 4,
                            'delta_initial_end_tank_level': 1,
                            'max_delta_head': 5}
     mutation = {'percent_genes': 10,

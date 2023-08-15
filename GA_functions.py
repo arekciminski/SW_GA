@@ -40,7 +40,7 @@ class GA_function:
         self.pop['last_best_solution'] = []
 
         for i in range(self.ga_parameters.number['specimen']):
-            specimen = [[] for i in range(8)]
+            specimen = [[] for i in range(9)]
 
             if self.ga_parameters.number['int_genes'] > 0:
                 temp_int_specimen = []
@@ -228,7 +228,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < self.ga_parameters.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if self.ga_parameters.number['float_genes'] > 0:
+                if self.ga_parameters.number['float_genes'] > 0  and species[8] == 0:
                     for j in range(len(species[3])):
                         error_value = species[3][j]
                         flow_pump_karolewo = species[6][0][j]
@@ -278,6 +278,8 @@ class GA_function:
                             species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                 'error_delta_value']
 
+                        species[8] = 1
+
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
     def ga_mutiation_SGO_head(self):
@@ -286,7 +288,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < self.ga_parameters.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if self.ga_parameters.number['float_genes'] > 0:
+                if self.ga_parameters.number['float_genes'] > 0 and species[8] == 0:
                     for j in range(time_dur):
                         kk=0
                         for k in range(len(self.sw_parameters.mes['nodes_names'])):
@@ -312,6 +314,7 @@ class GA_function:
                                 if delta_max_head < 0:
                                     species[2][j] -= random.random() * self.ga_parameters.specialize_operators[
                                         'head_delta_value']
+
                             if k == 1:
                                 if  delta_min_head < 0:
                                     species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
@@ -319,14 +322,11 @@ class GA_function:
                                     species[2][j + 2*time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']/2
 
-
                                 if delta_max_head < 0:
                                     species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                         'head_delta_value']
                                     species[2][j + 2*time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']/2
-
-
 
                             if k == 2:
                                 if  delta_min_head < 0:
@@ -344,11 +344,12 @@ class GA_function:
                                                                     'head_delta_value']/2
 
                             if k == 3:
-                                if  delta_min_head < 0:
+                                if delta_min_head < 0:
                                     species[2][j + time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']
                                     species[2][j + 2 * time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']
+
 
                                 if delta_max_head < 0:
                                     species[2][j + time_dur] -= random.random() * self.ga_parameters.specialize_operators[
@@ -368,26 +369,31 @@ class GA_function:
                                         'head_delta_value']
                                     species[2][j + 2 * time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                         'head_delta_value']
+
                             #Zbiorniki
                             if k == 5:
                                 if delta_min_head < 0:
-                                    species[2][j] += random.random() * \
-                                                     self.ga_parameters.specialize_operators['head_delta_value']
-                                    species[2][j + time_dur] -= random.random() \
-                                                                * self.ga_parameters.specialize_operators[
-                                                                'head_delta_value']
-                                    species[2][j + 2*time_dur] += random.random() \
-                                                                * self.ga_parameters.specialize_operators[
-                                                                'head_delta_value']/2
-                                if delta_max_head < 0:
-                                    species[2][j] -= random.random() * \
-                                                     self.ga_parameters.specialize_operators['head_delta_value']
-                                    species[2][j + time_dur] += random.random() \
-                                                                * self.ga_parameters.specialize_operators[
-                                                                    'head_delta_value']
-                                    species[2][j + 2 * time_dur] -= random.random() \
+                                    for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
+                                        species[2][j - jj] += random.random() * \
+                                                         self.ga_parameters.specialize_operators['head_delta_value']
+                                        species[2][j - jj + time_dur] -= random.random() \
                                                                     * self.ga_parameters.specialize_operators[
-                                                                        'head_delta_value']/2
+                                                                    'head_delta_value']
+                                        species[2][j - jj + 2*time_dur] += random.random() \
+                                                                    * self.ga_parameters.specialize_operators[
+                                                                    'head_delta_value']/2
+
+                                if delta_max_head < 0:
+                                    for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
+                                        species[2][j - jj] -= random.random() * \
+                                                         self.ga_parameters.specialize_operators['head_delta_value']
+                                        species[2][j - jj + time_dur] += random.random() \
+                                                                    * self.ga_parameters.specialize_operators[
+                                                                        'head_delta_value']
+                                        species[2][j - jj + 2 * time_dur] -= random.random() \
+                                                                        * self.ga_parameters.specialize_operators[
+                                                                            'head_delta_value']/2
+                            species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -397,7 +403,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < self.ga_parameters.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if self.ga_parameters.number['float_genes'] > 0:
+                if self.ga_parameters.number['float_genes'] > 0 and species[8] == 0:
                     for j in range(time_dur-1):
                         kk = 0
                         for k in self.sw_parameters.mes_head_index['pump']:
@@ -446,6 +452,7 @@ class GA_function:
                                                                     'head_delta_value']
                                     species[2][j + 2*time_dur] += random.random() * self.ga_parameters.specialize_operators[
                                     'head_delta_value']
+                            species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -455,7 +462,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < self.ga_parameters.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if self.ga_parameters.number['float_genes'] > 0:
+                if self.ga_parameters.number['float_genes'] > 0  and species[8] == 0:
 
                     for j in range(len(self.sw_parameters.tanks['names'])):
 
@@ -484,6 +491,7 @@ class GA_function:
 
                                 species[2][j + k + 2 * time_dur] += random.random() * \
                                                                     self.ga_parameters.specialize_operators['head_delta_value']
+                        species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -493,7 +501,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < self.ga_parameters.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if self.ga_parameters.number['float_genes'] > 0:
+                if self.ga_parameters.number['float_genes'] > 0 and species[8] == 0:
                     for j in range(time_dur):
                         for k in range(len(self.sw_parameters.mes['links_names'])):
 
@@ -528,6 +536,7 @@ class GA_function:
                                 if delta_max_flow < 0:
                                     species[2][j + 2 * time_dur] -= random.random() * self.ga_parameters.specialize_operators[
                                         'flow_delta_value']
+                            species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -545,10 +554,6 @@ class GA_function:
 
     def ga_crossover(self):
 
-        #low_int_val = self.ga_parameters['pop_int_range_low']
-        #high_int_val = self.ga_parameters['pop_int_range_high']
-        #low_float_val = self.ga_parameters['pop_float_range_low']
-        #high_float_val = self.ga_parameters['pop_float_range_high']
 
         temp_cross = copy.deepcopy(self.pop['pop'])
 
@@ -613,6 +618,9 @@ class GA_function:
         for ln in epa.sw_parameters.mes['links_names']:
             temp_flow.append(epa.data['flow_output_' + ln][0])
         self.pop[population_name][specimen_number][6] = temp_flow
+
+        #6 - Not repeted SGO mutation
+        self.pop[population_name][specimen_number][8] = 0
 
     def ga_fitnes_function2(self):
 
@@ -741,7 +749,7 @@ class GA_function:
 
         self.ga_statistics()
         self.print_name = f"It. num.: {ga.pop['num_iteration'] - 1}, "+\
-                          f"Mean: {ga.pop['mean_pop_value'][-1]:.0f},"+ \
+                          f"Mean: {ga.pop['mean_pop_value'][-1]:.0f}, "+ \
                           f"Best: {ga.pop['last_best_solution'][0]:.0f}, "+\
                           f"Energy: {ga.pop['last_best_solution'][7]['energy']:.0f}, "+\
                           f"Head: {ga.pop['last_best_solution'][7]['head']:.0f}, "+\
@@ -916,7 +924,6 @@ if __name__ == '__main__':
         ga.ga_initialization()
 
         ga.ga_fitnes_function()
-        #ga.ga_fitnes_function2()
 
         ga.ga_statistics()
 
