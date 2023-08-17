@@ -1,0 +1,159 @@
+[TITLE]
+
+
+[JUNCTIONS]
+;ID              	Elev        	Demand      	Pattern         
+ 2               	10.00       	0.00        	pompka          	;
+ 3               	10.00       	0.00        	pompka          	;
+ 4               	10.00       	0.00        	pompka          	;
+ 5               	5.00        	2           	demand          	;
+ 6               	5.00        	5           	demand          	;
+
+[RESERVOIRS]
+;ID              	Head        	Pattern         
+ 1               	40          	                	;
+
+[TANKS]
+;ID              	Elevation   	InitLevel   	MinLevel    	MaxLevel    	Diameter    	MinVol      	VolCurve        	Overflow
+ 7               	44          	2.00        	0.00        	5.00        	10          	0.00        	                	;
+
+[PIPES]
+;ID              	Node1           	Node2           	Length      	Diameter    	Roughness   	MinorLoss   	Status
+ 2               	2               	3               	350.00      	100.00      	100.00      	0.0000      	Open  	;
+ 3               	2               	4               	150.00      	80.00       	100.00      	0.0000      	Open  	;
+ 4               	3               	5               	150.00      	80.00       	100.00      	0.0000      	Open  	;
+ 5               	4               	5               	350.00      	100.00      	100.00      	0.0000      	Open  	;
+ 6               	4               	6               	250.00      	60.00       	100.00      	0.0000      	Open  	;
+ 8               	3               	7               	350.00      	100.00      	100.00      	0.0000      	Open  	;
+ 7               	6               	5               	1000.00     	60.00       	100.00      	0.0000      	Open  	;
+
+[PUMPS]
+;ID              	Node1           	Node2           	Parameters
+ 1               	1               	2               	HEAD 1	PATTERN pompka	;
+
+[VALVES]
+;ID              	Node1           	Node2           	Diameter    	Type	Setting     	MinorLoss   
+
+[TAGS]
+
+[DEMANDS]
+;Junction        	Demand      	Pattern         	Category
+
+[STATUS]
+;ID              	Status/Setting
+
+[PATTERNS]
+;ID              	Multipliers
+;
+ demand          	0.2000      	0.2500      	0.3000      	0.3000      	0.3500      	0.4000      
+ demand          	0.6500      	0.9000      	1.1500      	0.9000      	0.8000      	0.7500      
+ demand          	0.7500      	0.7500      	0.8500      	0.9500      	1.1500      	1.2500      
+ demand          	1.0000      	0.8000      	0.7500      	0.6500      	0.3000      	0.2500      
+;
+ pompka          	0.7226      	0.7707      	0.859       	0.8020      	0.8281      	0.7736      
+ pompka          	0.9395      	0.8364      	0.9047      	0.8676      	0.8631      	0.7794      
+ pompka          	0.7029      	0.8751      	0.8508      	0.7581      	0.9009      	0.9324      
+ pompka          	0.7558      	0.6667      	0.7622      	0.6273      	0.6880      	0.7624      
+
+[CURVES]
+;ID              	X-Value     	Y-Value
+;PUMP: PUMP:  
+ 1               	15.0000     	10.0000     
+
+[CONTROLS]
+
+
+
+
+[RULES]
+
+
+
+[ENERGY]
+ Global Efficiency  	75.00
+ Global Price       	0
+ Demand Charge      	0.0000
+
+[EMITTERS]
+;Junction        	Coefficient
+
+[QUALITY]
+;Node            	InitQual
+ 1               	0.300
+
+[SOURCES]
+;Node            	Type        	Quality     	Pattern
+
+[REACTIONS]
+;Type     	Pipe/Tank       	Coefficient
+
+
+[REACTIONS]
+ Order Bulk            	1.00
+ Order Tank            	1.00
+ Order Wall            	1
+ Global Bulk           	-20.0000
+ Global Wall           	0.0000
+ Limiting Potential    	0
+ Roughness Correlation 	0
+
+[MIXING]
+;Tank            	Model
+
+[TIMES]
+ Duration           	24:00 
+ Hydraulic Timestep 	1:00 
+ Quality Timestep   	0:05 
+ Pattern Timestep   	1:00 
+ Pattern Start      	0:00 
+ Report Timestep    	1:00 
+ Report Start       	0:00 
+ Start ClockTime    	0:00:00
+ Statistic          	NONE
+
+[REPORT]
+ Status             	No
+ Summary            	No
+ Page               	0
+
+[OPTIONS]
+ Units              	LPS
+ Headloss           	H-W
+ Specific Gravity   	1.0000
+ Viscosity          	1.0000
+ Trials             	40
+ Accuracy           	0.00100000
+ CHECKFREQ          	2
+ MAXCHECK           	10
+ DAMPLIMIT          	0
+ Unbalanced         	Continue 10
+ Pattern            	pompka
+ Demand Multiplier  	1.00
+ Emitter Exponent   	0.50
+ Quality            	Chemical mg/L
+ Diffusivity        	1.0000
+ Tolerance          	0.01000000
+
+[COORDINATES]
+;Node            	X-Coord           	Y-Coord
+2               	1762.970          	7853.770          
+3               	3779.480          	7853.770          
+4               	1762.970          	6202.830          
+5               	3779.480          	6202.830          
+6               	2788.920          	4433.960          
+1               	182.780           	7853.770          
+7               	5418.850          	7853.400          
+
+[VERTICES]
+;Link            	X-Coord           	Y-Coord
+
+[LABELS]
+;X-Coord             Y-Coord             Label & Anchor Node
+
+[BACKDROP]
+  DIMENSIONS  	0.000             	0.000             	10000.000         	10000.000         
+ UNITS          	None
+ FILE           	
+ OFFSET         	0.00            	0.00            
+
+[END]
