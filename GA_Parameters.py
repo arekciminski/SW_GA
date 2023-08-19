@@ -25,7 +25,7 @@ class ga_par:
     selection ={ 'type': 'first_n',
                  'n_type_precent': 1},#'first_n',roulete  # rws, sus, random, tournament
     crossover = {'percent_probability': 80,
-                 'type': 'single_point'}  # two_points , uniform , scattered
+                 'type': 'two_points'}  #single_point, , uniform , scattered
     specialize_operators ={'error_delta_value': 0.3,
                            'pressure_delta_value': 0.3,
                            'flow_delta_value': 0.3,
@@ -48,7 +48,7 @@ class ga_par:
            }
 
     stop_criterion = {
-        'min_generations': 10,
+        'min_generations': 20,
         'min_change': 1e-1}
 
     move_time = 0

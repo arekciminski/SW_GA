@@ -439,7 +439,6 @@ class GA_function:
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
-
     def ga_mutiation_SGO_energy(self):
 
         time_dur = self.sw_parameters.time['duration_h']
@@ -513,6 +512,47 @@ class GA_function:
 
                         specimen_0[2] = second_species_first_half + first_species_second_half
                         specimen_1[2] = first_species_first_half + second_species_second_half
+
+                    self.pop['mate_cros'].append(specimen_0)
+                    self.pop['mate_cros'].append(specimen_1)
+
+
+        if self.ga_parameters.crossover['type'] == 'two_points':
+            for i in range(self.ga_parameters.number['specimen']):
+                if random.random() < self.ga_parameters.crossover['percent_probability'] / 100:
+
+                    specimen_to_mutation = [random.randint(0, ga_par.number['specimen'])]
+                    specimen_to_mutation.append(random.randint(1, ga_par.number['specimen']))
+
+                    specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_mutation[0]]))
+                    specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_mutation[1]]))
+
+                    if self.ga_parameters.number['int_genes'] > 0:
+                        cros_position = random.randint(1, self.ga_parameters.number['int_genes'])
+
+                        first_species_first_part = specimen_0[1][:cros_position[0]]
+                        first_species_middle_part = specimen_0[1][cros_position[0]:cros_position[1]]
+                        first_species_last_part = specimen_0[1][cros_position[1]:]
+                        second_species_first_part = specimen_0[1][:cros_position[0]]
+                        second_species_middle_part = specimen_0[1][cros_position[0]:cros_position[1]]
+                        second_species_last_part = specimen_0[1][cros_position[1]:]
+
+                        specimen_0[1] = first_species_first_part + second_species_middle_part + first_species_last_part
+                        specimen_1[1] = second_species_first_part + first_species_middle_part + second_species_last_part
+
+                    if self.ga_parameters.number['float_genes'] > 0:
+                        cros_position_1 = random.randint(1, self.ga_parameters.number['float_genes'])
+                        cros_position_2 = random.randint(cros_position_1, self.ga_parameters.number['float_genes'])
+
+                        first_species_first_part = specimen_0[1][:cros_position_1]
+                        first_species_middle_part = specimen_0[1][cros_position_1:cros_position_2]
+                        first_species_last_part = specimen_0[1][cros_position_2:]
+                        second_species_first_part = specimen_0[1][:cros_position_1]
+                        second_species_middle_part = specimen_0[1][cros_position_1:cros_position_2]
+                        second_species_last_part = specimen_0[1][cros_position_2:]
+
+                        specimen_0[1] = first_species_first_part + second_species_middle_part + first_species_last_part
+                        specimen_1[1] = second_species_first_part + first_species_middle_part + second_species_last_part
 
                     self.pop['mate_cros'].append(specimen_0)
                     self.pop['mate_cros'].append(specimen_1)
@@ -779,35 +819,6 @@ class GA_function:
 
         time.sleep(0.1)
 
-def prarallel_com(key_list, i):
-    print(input)
-
-    species = self.pop[key_list][i][2]
-
-    self.ep.get_data(species)
-
-    self.add_data_to_pop(self.ep, key_list, i)
-
-    penalties = {}
-    penalties['error'] = self.ga_parameters.penalty_function_weights[0][
-                             0] * self.error_penalty_function(self.ep)
-    penalties['energy'] = self.ga_parameters.penalty_function_weights[0][
-                              1] * self.energy_penalty_function(self.ep)
-    penalties['pressure'] = self.ga_parameters.penalty_function_weights[0][2] * self.pressure_penalty_function(
-        self.ep)
-    penalties['flow'] = self.ga_parameters.penalty_function_weights[0][3] * self.flow_penalty_function(
-        self.ep)
-    penalties['tank'] = self.ga_parameters.penalty_function_weights[0][4] * self.tank_penalty_function(
-        self.ep)
-    penalties['tank_final'] = self.ga_parameters.penalty_function_weights[0][
-                                  5] * self.tank_final_state_penalty_function(self.ep)
-
-    fitnes_fun = penalties['error'] + penalties['energy'] + penalties['pressure'] + penalties['flow'] + \
-                 penalties['tank'] + penalties['tank_final']
-
-    self.pop[key_list][i][0] = fitnes_fun
-    self.pop[key_list][i][7] = penalties
-
 def save_variabele_space_to_file(file_name, input_dictionary):
 
     key = 'pop'
@@ -819,17 +830,6 @@ def save_variabele_space_to_file(file_name, input_dictionary):
         f.writelines(temp_date)
         f.close()
 
-'''def save_variabele_space_to_file(file_name, input_dictionary):
-
-    key = 'pop'
-    temp_date = []
-    for i in range(ga_par.number['specimen']):
-        temp_date.append(f"{input_dictionary['pop'][i][2:]}\n")
-
-    with open(file_name,'a') as f:
-        f.writelines(temp_date)
-        f.close()
-'''
 if __name__ == '__main__':
         print('\nTo jest biblioteka pomocna przy algorytmie genetycznym')
 
@@ -854,7 +854,7 @@ if __name__ == '__main__':
 
             ga.ga_selection()
 
-            save_variabele_space_to_file('last_best_pop_'+ga_par.data + '.txt', ga.pop)
+            #save_variabele_space_to_file('last_best_pop_'+ga_par.data + '.txt', ga.pop)
 
             ga.print_statistics()
 
