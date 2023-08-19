@@ -90,6 +90,7 @@ class Epa:
                                      self.demand_patterns_values[i][j + move_time])
 
     def save_temp_file(self):
+        self.set_time_duration()
         et.ENsaveinpfile('temporary_' + self.sw_parameters['file_name'])
 
     def get_set_parameters(self):
@@ -166,6 +167,7 @@ class Epa:
 
         for ii in range(0, self.sw_parameters.number['mes_nodes'] - self.sw_parameters.number['tanks'] + 1):
             self.data['pressure_output_' + self.sw_parameters.mes['nodes_names'][ii]].append(pressure[ii][:-1])
+
         for ii in range(self.sw_parameters.number['mes_nodes'] - self.sw_parameters.number['tanks'],
                         self.sw_parameters.number['mes_nodes']):
             self.data['tank_output_' + self.sw_parameters.tanks['names'][

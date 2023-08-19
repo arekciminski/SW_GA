@@ -2,10 +2,10 @@ from Get_data_from_DWDS import Epa
 
 class sw_par:
 
-    file_name = "siec_maly_przyklad_obiekt2.inp",
+    file_name = "siec_maly.inp",
 
     tanks = {'names': ['7'],
-             'initial_lev': [2.5]}
+             'initial_lev': [2]}
 
     lc = 0.84
     hc = 2*lc
@@ -35,12 +35,14 @@ class sw_par:
 
     hydraulic_monitor_values = ['flow', 'energy', 'pressure']
 
-    level = {'min_pressure': [36, 38, 44, 20, 25, 1.2],
-             'max_pressure': [41, 43, 54, 30, 35, 4.8],
-             'min_tank' : [2],
-             'max_tank': [4.7],
+    level = {'min_pressure': [30, 31, 0.5],
+             'max_pressure': [35, 36, 4.5],
+             'min_tank' : [0.5],
+             'max_tank': [4.5],
              'min_flow': [0],
-             'max_flow': [10]
+             'max_flow': [10],
+             'max_pumps_speed':[1],
+             'min_pumps_speed': [0]
     }
 
     number = {'mes_links' : len(mes['links_names']),

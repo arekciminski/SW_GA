@@ -68,12 +68,19 @@ class GA_function:
 
     def penalty_function_tank_final_state(self, epa):
 
+        penalty_init_end_tank_level = 0
+
         for i in range(len(epa.sw_parameters.mes['nodes_names']) - len(epa.sw_parameters.tanks['names']),
                        len(epa.sw_parameters.mes['nodes_names'])):
             tank_inital_state = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][0]
             tank_final_state = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][-1]
 
-        return abs(tank_inital_state - tank_final_state)
+            delta_init_end_tank = abs(tank_final_state - tank_inital_state)
+
+            if delta_init_end_tank > ga_par.specialize_operators['delta_initial_end_tank_level']:
+                penalty_init_end_tank_level += delta_init_end_tank
+
+        return (10*abs(penalty_init_end_tank_level))**2
 
     def penalty_function_pressure_limits(self, epa):
 
@@ -84,12 +91,12 @@ class GA_function:
                 cross_values = -epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][j] + \
                                epa.sw_parameters.level['min_pressure'][i]
                 if cross_values > 0:
-                    pressure_penalty += abs(cross_values)
+                    pressure_penalty += (10*abs(cross_values))**2
 
                 cross_values = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][j] - \
                                epa.sw_parameters.level['max_pressure'][i]
                 if cross_values > 0:
-                    pressure_penalty += abs(cross_values)
+                    pressure_penalty += (10*abs(cross_values))**2
 
         return pressure_penalty
 
@@ -104,7 +111,7 @@ class GA_function:
                                epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t+1])
 
                 if delta_pressure > max_delta_pump_pressure:
-                    acceleration_pressure_penalty += delta_pressure
+                    acceleration_pressure_penalty += (10*delta_pressure)**2
         return acceleration_pressure_penalty
 
     def penalty_function_acceletarion_pump_speed(self, epa):
@@ -118,7 +125,7 @@ class GA_function:
                                epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][t+1])
 
                 if delta_speed > max_delta_pump_speed:
-                    acceleration_speed_penalty += delta_speed
+                    acceleration_speed_penalty += (10*delta_speed)**2
         return acceleration_speed_penalty
 
     def penalty_function_acceletarion_pump_flow(self, epa):
@@ -132,7 +139,7 @@ class GA_function:
                                epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][t+1])
 
                 if delta_flow > max_delta_pump_flow:
-                    acceleration_flow_penalty += delta_flow
+                    acceleration_flow_penalty += (10*delta_flow)**2
         return acceleration_flow_penalty
 
     def penalty_function_tank_limits(self, epa):
@@ -143,12 +150,12 @@ class GA_function:
                 cross_values = -epa.data['tank_output_' + epa.sw_parameters.tanks['names'][i]][0][j] + \
                                epa.sw_parameters.level['min_tank'][i]
                 if cross_values > 0:
-                    tank_penalty += abs(cross_values)
+                    tank_penalty += (10*abs(cross_values))**2
 
                 cross_values = epa.data['tank_output_' + epa.sw_parameters.tanks['names'][i]][0][j] - \
                                epa.sw_parameters.level['max_tank'][i]
                 if cross_values > 0:
-                    tank_penalty += abs(cross_values)
+                    tank_penalty += (10*abs(cross_values))**2
 
         return tank_penalty
 
@@ -161,13 +168,13 @@ class GA_function:
                                epa.sw_parameters.level['min_flow'][i]
 
                 if cross_values > 0:
-                    flow_penalty += abs(cross_values)
+                    flow_penalty += (10*abs(cross_values))**2
 
             for i in range(len(epa.sw_parameters.mes['links_names'])):
                 cross_values = epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][j] - \
                                epa.sw_parameters.level['max_flow'][i]
                 if cross_values > 0:
-                    flow_penalty += abs(cross_values)
+                    flow_penalty += (10*abs(cross_values))**2
         return flow_penalty
 
     def penalty_function_error(self,epa):
@@ -212,6 +219,7 @@ class GA_function:
             self.ga_mutiation_SGO_flow()
             self.ga_mutiation_SGO_end_tank_level()
             self.ga_mutiation_SGO_acceleration_pump_pressure()
+            self.ga_mutiation_SGO_energy()
 
     def ga_mutation_random(self):
 
@@ -258,7 +266,7 @@ class GA_function:
                                species[2][ge_pos] = high_float_val
                            if species[2][ge_pos] < low_float_val:
                                species[2][ge_pos] = low_float_val
-                    self.pop['mate_mut'].append(species)
+                    self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
     def ga_mutiation_SGO_error(self):
 
@@ -304,20 +312,20 @@ class GA_function:
 
                             if k == 0:
                                 if delta_min_pressure < 0:
-                                    print('min1',j,delta_min_pressure, species[2][j])
+                                    #print('min1',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
                                     species[2][j] += random.random() * self.ga_parameters.specialize_operators[
                                     'pressure_delta_value']
-                                    print('min2',j,delta_min_pressure, species[2][j])
+                                    #print('min2',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
                                 if delta_max_pressure < 0:
                                     species[2][j] -= random.random() * self.ga_parameters.specialize_operators[
                                         'pressure_delta_value']
 
                             if k == 1:
                                 if  delta_min_pressure < 0:
-                                    print('min1',j,delta_min_pressure, species[2][j])
+                                    #print('min3',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
                                     species[2][j] += random.random() * self.ga_parameters.specialize_operators[
                                     'pressure_delta_value']
-                                    print('min2',j,delta_min_pressure, species[2][j])
+                                    #print('min4',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
 
                                 if delta_max_pressure < 0:
                                     species[2][j] -= random.random() * self.ga_parameters.specialize_operators[
@@ -326,7 +334,7 @@ class GA_function:
                              #Zbiorniki
                             if k == 2:
                                 if delta_min_pressure < 0:
-                                    print('min1',j,delta_min_pressure, species[2][j])
+
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
                                         species[2][j - jj] += random.random() * \
                                                          self.ga_parameters.specialize_operators['pressure_delta_value']
@@ -431,13 +439,35 @@ class GA_function:
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
+
+    def ga_mutiation_SGO_energy(self):
+
+        time_dur = self.sw_parameters.time['duration_h']
+        for i in range(len(self.specimen)):
+            if random.random() < self.ga_parameters.mutation['percent_probability'] / 100:
+                species = copy.deepcopy(self.specimen[i])
+                if self.ga_parameters.number['float_genes'] > 0 and species[8] == 0:
+                    for j in range(time_dur):
+                            if sw_par.energy_taryf[j] == sw_par.lc:
+                                species[2][j] += random.random() * self.ga_parameters.specialize_operators[
+                                    'energy_delta_value']
+
+                            if sw_par.energy_taryf[j] == sw_par.hc:
+                                species[2][j] -= random.random() * self.ga_parameters.specialize_operators[
+                                    'energy_delta_value']
+
+                            species[8] = 1
+
+                self.pop['mate_mut'].append(self.set_specimen_bound(species))
+
     def set_specimen_bound(self, species):
         low_float_val = self.ga_parameters.pop['float_range_low']
         high_float_val = self.ga_parameters.pop['float_range_high']
 
-        for t in range(len(species)):
+        for t in range(len(species[2])):
             if species[2][t] > high_float_val:
                 species[2][t] = high_float_val
+
             if species[2][t] < low_float_val:
                 species[2][t] = low_float_val
 
@@ -555,8 +585,6 @@ class GA_function:
                 self.pop[keys_list[k]][i][0] = fitnes_fun
                 self.pop[keys_list[k]][i][7] = penalties
 
-        self.pop['num_iteration'] += 1
-
         return self.pop
 
     def ga_selection(self):
@@ -589,30 +617,35 @@ class GA_function:
     def ga_stop_criterion(self):
 
         output = 1
+        if self.pop['num_iteration'] == 0:
+            self.last_solution = [self.pop['last_best_solution'][0]]
+            self.diff_fitness_function = [0]
 
-        if self.pop['num_iteration'] > self.ga_parameters.stop_criterion['min_generations']:
+        else:
+            self.last_solution.append(self.pop['last_best_solution'][0])
+            self.diff_fitness_function.append(abs(self.last_solution[-1] - self.last_solution[-2]))
 
-            diff_fitness_function = []
+            last_n_diff = self.diff_fitness_function[-self.ga_parameters.stop_criterion['min_generations']:]
 
-            last_solutions = self.pop['best_solutions'][-self.ga_parameters.stop_criterion['min_generations']:]
+        if self.pop['num_iteration'] >= self.ga_parameters.stop_criterion['min_generations'] and\
+            self.pop['num_iteration'] >0:
 
-            for i in range(self.ga_parameters.stop_criterion['min_generations']-1, 0, -1):
-                diff_fitness_function.append(abs(last_solutions[i - 1] - last_solutions[i]))
-
-            if sum(diff_fitness_function) < self.ga_parameters.stop_criterion['min_change'] and \
-                sum(self.ep.data['error_output'][0]) < 0:
+            if sum(last_n_diff) < self.ga_parameters.stop_criterion['min_change'] and \
+                sum(self.pop['last_best_solution'][3]) == 0:
 
                 output = 0
+
+        self.pop['num_iteration'] += 1
 
         return output
 
     def print_statistics(self):
 
         self.ga_statistics()
-        self.print_name = f"It. num.: {ga.pop['num_iteration'] - 1}, "+\
+        self.print_stats = f"It. num.: {ga.pop['num_iteration']}, "+\
                           f"Mean: {ga.pop['mean_pop_value'][-1]:.0f}, "+ \
                           f"Best: {ga.pop['last_best_solution'][0]:.0f}, "+\
-                          f"Energy: {ga.pop['last_best_solution'][7]['energy']:.0f}, "+\
+                          f"Energy: {ga.pop['last_best_solution'][7]['energy']:.2f}, "+\
                           f"Pres: {ga.pop['last_best_solution'][7]['pressure']:.0f}, "+\
                           f"Flow: {ga.pop['last_best_solution'][7]['flow']:.0f}, "+\
                           f"Tank: {ga.pop['last_best_solution'][7]['tank']:.0f}, "+\
@@ -621,7 +654,8 @@ class GA_function:
                           f"{ga.pop['last_best_solution'][7]['pump_flow_acc']:.0f}, " + \
                           f"{ga.pop['last_best_solution'][7]['pump_speed_acc']:.0f}"
         print('--------------------------------------------------------------------------------------------')
-        print(self.print_name)
+
+        print(self.print_stats)
 
         #print(f"error: {ga.pop['last_best_solution'][3]}")
         #print(f"head 1: {ga.pop['last_best_solution'][4][0]}")
@@ -637,6 +671,12 @@ class GA_function:
     def plot_mes(self, axis, type, which, location):
 
         x = np.arange(0, self.sw_parameters.time['duration_h'])
+
+        if type == 2:
+            mes_name = 'Pump speed'
+            name = 'pumps_speed'
+            ylabel = 'Speed'
+
 
         if type == 4:
             mes_name = 'nodes'
@@ -656,6 +696,8 @@ class GA_function:
         self.ax[axis[0], axis[1]].clear()
         color = ['b','m','g']
         for i in range(len(which)):
+            #print(self.pop['last_best_solution'][2][0])
+            #print(self.pop['last_best_solution'][type][which[i]])
             self.ax[axis[0], axis[1]].plot(x, self.pop['last_best_solution'][type][which[i]],
                                             color=color[i], linewidth=1)
         self.ax[axis[0], axis[1]].plot(x, lower_bound, color='r', linewidth=1)
@@ -718,7 +760,7 @@ class GA_function:
                 error += str(i) + ', '
             i += 1
         self.figure.text(0.01, 0.95, ' ' * 800, fontsize=12, bbox=dict(facecolor='white', edgecolor='white'))
-        self.figure.text(0.01, 0.95, self.print_name, fontsize=12, bbox ={'facecolor':'white'})
+        self.figure.text(0.01, 0.95, self.print_stats, fontsize=12, bbox ={'facecolor':'white'})
         self.figure.text(0.01, 0.92, ' '*100, fontsize=12, bbox=dict(facecolor= 'white', edgecolor = 'white'))
         self.figure.text(0.01, 0.92, error, fontsize=12, bbox={'facecolor': 'white'})
 
@@ -729,6 +771,7 @@ class GA_function:
         self.plot_mes([0, 2], 4, [1], 'upper right')
         self.plot_mes([1, 1], 5, [0], 'upper right')
         self.plot_mes([1, 2], 6, [0], 'upper right')
+        #self.plot_mes([1, 0], 2, [0], 'upper right')
         self.print_values_on_plot(epa)
         self.figure.canvas.draw()
 
@@ -793,6 +836,7 @@ if __name__ == '__main__':
         ga = GA_function()
 
         ga.ga_initialization()
+
 
         ga.ga_fitnes_function()
 

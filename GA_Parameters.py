@@ -8,16 +8,16 @@ class ga_par:
     # accelaration pump pressure, accelaration pump flow,
     # accelaration pump speed]
     penalty_function_weights = [1e9,
-                                0.1,
+                                10,
                                 5000,
                                 100,
                                 100000,
                                 10000,
-                                0,
-                                0,
+                                10,
+                                10,
                                 0],
     number = {'generations': 500,
-           'specimen': 100,
+           'specimen': 50,
            'float_genes': len(sw_par.pumps['names']) * sw_par.time['duration_h'],
             'int_genes': 0}
 
@@ -31,10 +31,11 @@ class ga_par:
                            'flow_delta_value': 0.3,
                            'end_tank_level_horizon': 8,
                            'bound_tank_level_horizon': 4,
-                           'delta_initial_end_tank_level': 1,
+                           'delta_initial_end_tank_level': 0.5,
                            'max_delta_pump_pressure': 3,
-                           'max_delta_pump_flow': 2,
-                           'max_delta_pump_speed': 0.1}
+                           'max_delta_pump_flow': 5,
+                           'max_delta_pump_speed': 0.3,
+                           'energy_delta_value': 0.2}
     mutation = {'percent_genes': 1,
                 'percent_probability': 90,
                 'type': 'random',  # random, inversion , scramble ,
@@ -48,6 +49,6 @@ class ga_par:
 
     stop_criterion = {
         'min_generations': 10,
-        'min_change': 1e-2}
+        'min_change': 1e-1}
 
     move_time = 0
