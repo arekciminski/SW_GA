@@ -22,8 +22,12 @@ class ga_par:
             'int_genes': 0}
 
 
-    selection ={ 'type': 'first_n',
-                 'n_type_precent': 1},#'first_n',roulete  # rws, sus, random, tournament
+    elitism ={ 'type': 'first_n',
+                 'n_type_precent': 1},
+
+    selection = {'type': 'tournament',
+                 'precent_probability': 0.5},  # 'first_n',roulete  # rws, sus, random, tournament
+
     crossover = {'percent_probability': 80,
                  'type': 'two_points'}  #single_point, , uniform , scattered
     specialize_operators ={'error_delta_value': 0.3,
