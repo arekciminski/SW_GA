@@ -29,7 +29,7 @@ class ga_par:
                  'precent_probability': 0.5},  # 'first_n',roulete  # rws, sus, random, tournament
 
     crossover = {'percent_probability': 80,
-                 'type': 'two_points'}  #single_point, , uniform , scattered
+                 'type': 'two_points'}  #single_point, two_points, uniform , scattered
     specialize_operators ={'error_delta_value': 0.3,
                            'pressure_delta_value': 0.3,
                            'flow_delta_value': 0.3,

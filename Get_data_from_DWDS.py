@@ -70,7 +70,6 @@ class Epa:
                 pattern_value.append(px)
             self.demand_patterns_values.append(pattern_value)
 
-
     def set_time_duration(self):
         et.ENsettimeparam(0, self.sw_parameters.time['duration_s'])
 
@@ -161,6 +160,7 @@ class Epa:
             if (tstep <= 0):
                 break
         ret = et.ENcloseH()
+
         return flow, energy, pressure, error, time
 
     def insert_data(self, pressure, flow, energy, error, time):
