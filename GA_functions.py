@@ -330,31 +330,101 @@ class GA_function:
                                 if delta_min_pressure < 0:
                                     species[2][j] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
+                                    species[2][j+time_dur] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
                                 if delta_max_pressure < 0:
                                     species[2][j] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+                                    species[2][j+time_dur] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
                             if k == 1:
                                 if  delta_min_pressure < 0:
+                                    species[2][j+2*time_dur] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
+                                if delta_max_pressure < 0:
+                                    species[2][j+2*time_dur] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
+                            if k == 2:
+                                if  delta_min_pressure < 0:
                                     species[2][j] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
+                                    species[2][j+time_dur] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
 
                                 if delta_max_pressure < 0:
                                     species[2][j] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
+                                    species[2][j+time_dur] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+                            if k == 3:
+                                if  delta_min_pressure < 0:
+
+                                    species[2][j+2*time_dur] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
+                                if delta_max_pressure < 0:
+
+                                    species[2][j+2*time_dur] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
+                            if k == 4:
+                                if  delta_min_pressure < 0:
+                                    species[2][j] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
+                                    species[2][j+time_dur] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
+
+                                    species[2][j+2*time_dur] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+
+                                if delta_max_pressure < 0:
+                                    species[2][j] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+                                    species[2][j+time_dur] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
+                                    species[2][j+2*time_dur] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
                              #Zbiorniki
-                            if k == 2:
+                            if k == 5:
                                 if delta_min_pressure < 0:
 
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
                                         species[2][j - jj] += random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
 
+                                        species[2][j - jj+time_dur] += random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+
                                 if delta_max_pressure < 0:
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
                                         species[2][j - jj] -= random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
+                                        species[2][j - jj+time_dur] -= random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+
+                            if k == 6:
+                                if delta_min_pressure < 0:
+
+                                    for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
+
+                                        species[2][j - jj+2*time_dur] += random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+
+                                if delta_max_pressure < 0:
+                                    for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
+                                        species[2][j - jj+2*time_dur] -= random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+
 
                             species[8] = 1
 
@@ -526,11 +596,11 @@ class GA_function:
                                 species[2][t + j*time_dur] += random.random() * ga_par.specialize_operators[
                                     'energy_delta_value']
 
-                            if sw_par.energy_taryf[t] == sw_par.hc:
+                           if sw_par.energy_taryf[t] == sw_par.hc:
                                 species[2][t + j*time_dur] -= random.random() * ga_par.specialize_operators[
                                     'energy_delta_value']
 
-                            species[8] = 1
+                species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -803,15 +873,16 @@ class GA_function:
             name = 'pumps_speed'
             ylabel = 'Speed'
 
-
         if type == 4:
             mes_name = 'nodes'
             name = 'pressure'
             ylabel = 'Pressure [m]'
+
         if type ==5:
-            mes_name = 'tank'
+            mes_name = 'tanks'
             name = 'tank'
             ylabel = 'Level [m]'
+
         if type == 6:
             mes_name = 'links'
             name = 'flow'
@@ -893,15 +964,54 @@ class GA_function:
         self.plot_fitnes_values([0,0],i)
         self.plot_mes([0, 1], 4, [0],'upper right')
         self.plot_mes([0, 2], 4, [1], 'upper right')
-        self.plot_mes([1, 1], 5, [0], 'upper right')
-        self.plot_mes([1, 2], 6, [0], 'upper right')
+        self.plot_mes([0, 3], 4, [2,3], 'upper right')
+        self.plot_mes([1, 2], 5, [0,1], 'upper right')
+        self.plot_mes([1, 3], 6, [0,1,2], 'upper right')
         #self.plot_mes([1, 0], 2, [0], 'upper right')
+        self.ga_plot_pump_speed([1,0], 2,[0,1,2], 'upper right')
+
         self.print_values_on_plot(epa)
+
         self.figure.canvas.draw()
 
         self.figure.canvas.flush_events()
 
         time.sleep(0.1)
+
+    def ga_plot_pump_speed(self, axis, type, which, location):
+        x = np.arange(0, sw_par.time['duration_h'])
+
+        upper_bound = [ga_par.pop['float_range_high']]*sw_par.time['duration_h']
+        lower_bound = [ga_par.pop['float_range_low']]*sw_par.time['duration_h']
+        self.ax[axis[0], axis[1]].clear()
+        color = ['b','m','g','k']
+        for i in range(len(which)):
+            y = self.pop['last_best_solution'][type][which[i]*sw_par.time['duration_h']: \
+                                                     (which[i]+1) * sw_par.time['duration_h']]
+            self.ax[axis[0], axis[1]].bar(x, y, color=color[i], linewidth=1)
+        self.ax[axis[0], axis[1]].plot(x, lower_bound, color='r', linewidth=1)
+        self.ax[axis[0], axis[1]].plot(x, upper_bound, color='r', linewidth=1)
+        self.ax[axis[0], axis[1]].set_ylabel('Pump_speed', fontsize=9)
+        self.ax[axis[0], axis[1]].set_xlabel("Time [h]", fontsize=9)
+
+
+        labels =[]
+        names =''
+        for i in range(len(which)):
+            labels.append(sw_par.pumps['names'][which[i]])
+            if i < len(which)-1:
+                names += sw_par.pumps['names'][which[i]]
+            else:
+                names += sw_par.pumps['names'][which[i]]
+
+        self.ax[axis[0], axis[1]].set_title('Pump speed' + ' at ' + names,
+                                            fontsize = 10)
+        self.ax[axis[0], axis[1]].xaxis.set_tick_params(labelsize=8)
+        self.ax[axis[0], axis[1]].yaxis.set_tick_params(labelsize=6)
+
+        self.ax[axis[0], axis[1]].legend(loc = location, fontsize='8',
+                                         labels = labels)
+
 
 def save_variabele_space_to_file(file_name, input_dictionary):
 

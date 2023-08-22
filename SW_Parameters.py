@@ -36,8 +36,8 @@ class sw_par:
 
     hydraulic_monitor_values = ['flow', 'energy', 'pressure']
 
-    level = {'min_pressure': [100, 100, 100, 2,2],
-             'max_pressure': [120, 120, 120,9,19],
+    level = {'min_pressure': [40, 50, 40, 40, 40, 2, 2],
+             'max_pressure': [55, 60, 60, 60, 60, 9, 19],
              'min_tank' : [2, 2],
              'max_tank': [9, 19],
              'min_flow': [0,0,0],
