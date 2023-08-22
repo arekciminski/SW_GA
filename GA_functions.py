@@ -2,8 +2,6 @@ import copy
 import random
 from statistics import mean
 
-import pickle
-
 import numpy as np
 
 from SW_Parameters import sw_par
