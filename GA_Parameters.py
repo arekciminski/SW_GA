@@ -7,17 +7,17 @@ class ga_par:
     #[error, energy, pressure, flow, tank, tank_initial,
     # accelaration pump pressure, accelaration pump flow,
     # accelaration pump speed]
-    penalty_function_weights = [1e9,
+    penalty_function_weights = [1e14,
                                 10,
-                                5000,
+                                500,
                                 100,
-                                100000,
-                                10000,
+                                100,
+                                100,
                                 10,
                                 10,
                                 0],
     number = {'generations': 500,
-           'specimen': 50,
+           'specimen': 100,
            'float_genes': len(sw_par.pumps['names']) * sw_par.time['duration_h'],
             'int_genes': 0}
 
@@ -30,9 +30,9 @@ class ga_par:
 
     crossover = {'percent_probability': 80,
                  'type': 'two_points'}  #single_point, two_points, uniform , scattered
-    specialize_operators ={'error_delta_value': 0.3,
-                           'pressure_delta_value': 0.3,
-                           'flow_delta_value': 0.3,
+    specialize_operators ={'error_delta_value': 0.2,
+                           'pressure_delta_value': 0.2,
+                           'flow_delta_value': 0.2,
                            'end_tank_level_horizon': 8,
                            'bound_tank_level_horizon': 4,
                            'delta_initial_end_tank_level': 0.5,
