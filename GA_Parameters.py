@@ -7,29 +7,30 @@ class ga_par:
     #[error, energy, pressure, flow, tank, tank_initial,
     # accelaration pump pressure, accelaration pump flow,
     # accelaration pump speed]
-    penalty_function_weights = [1e9,
+    penalty_function_weights = [1e14,
                                 10,
-                                5000,
-                                100,
-                                100000,
-                                10000,
+                                50,
                                 10,
                                 10,
+                                10,
+                                0,
+                                0,
                                 0],
     number = {'generations': 500,
-           'specimen': 50,
-           'float_genes': len(sw_par.pumps['names']) * sw_par.time['duration_h'],
-            'int_genes': 0}
+              'specimen': 150,
+              'float_genes': int(len(sw_par.pumps['names']) * sw_par.time['duration_h'] * \
+                             3600/sw_par.time['hydraulic_step_s']),
+              'int_genes': 0}
 
 
     elitism ={ 'type': 'first_n',
-                 'n_type_precent': 1},
+               'n_type_precent': 1},
 
     selection = {'type': 'tournament',
                  'precent_probability': 0.5},  # 'first_n',roulete  # rws, sus, random, tournament
 
-    crossover = {'percent_probability': 80,
-                 'type': 'two_points'}  #single_point, , uniform , scattered
+    crossover = {'percent_probability': 20,
+                 'type': 'single_point'}  #single_point, two_points, uniform , scattered
     specialize_operators ={'error_delta_value': 0.3,
                            'pressure_delta_value': 0.3,
                            'flow_delta_value': 0.3,
@@ -40,13 +41,13 @@ class ga_par:
                            'max_delta_pump_flow': 5,
                            'max_delta_pump_speed': 0.3,
                            'energy_delta_value': 0.2}
-    mutation = {'percent_genes': 1,
+    mutation = {'percent_genes': 10,
                 'percent_probability': 90,
                 'type': 'random',  # random, inversion , scramble ,
                 'random_delta': 0.15}
 
     pop = {'float_range_low': 0,
-           'float_range_high': 1,
+           'float_range_high': 1.3,
            'int_range_low': 0,
            'int_range_high': 1,
            }

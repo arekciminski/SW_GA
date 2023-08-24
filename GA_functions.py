@@ -12,7 +12,6 @@ import time
 from  multiprocessing import Pool
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 from Get_data_from_DWDS import Epa
 
 class GA_function:
@@ -27,7 +26,9 @@ class GA_function:
         self.ep.open_epanet()
         self.ep.get_link_index()
         self.ep.get_node_index()
-        self.ep.get_pattern_index()
+        self.ep.get_node_pattern()
+        self.ep.get_node_pattern_names()
+        self.ep.get_pumps_pattern_index()
         self.ep.get_pattern_values()
 
         self.ep.close_epanet()
@@ -65,9 +66,7 @@ class GA_function:
     def penalty_function_tank_final_state(self, epa):
 
         penalty_init_end_tank_level = 0
-
-        for i in range(len(epa.sw_parameters.mes['nodes_names']) - len(epa.sw_parameters.tanks['names']),
-                       len(epa.sw_parameters.mes['nodes_names'])):
+        for i in sw_par.mes_pressure_index['tank']:
             tank_inital_state = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][0]
             tank_final_state = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][-1]
 
@@ -183,7 +182,7 @@ class GA_function:
                 if epa.data['flow_output_' + name][0][j] <= 0 :
                     k += 1
             if error_values[j] > 0:
-                error_values[j] = error_values[j] ** k
+                error_values[j] = error_values[j] #** k
 
         return sum(error_values)
 
@@ -271,13 +270,14 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0  and species[8] == 0:
-                    for j in range(len(species[3])):
-                        error_value = species[3][j]
-                        flow_pump = species[6][0][j]
-                        if error_value > 4 and flow_pump < 0.1:
-                            species[2][j] += random.random() * ga_par.specialize_operators[
-                                'error_delta_value']
+                if ga_par.number['float_genes'] > 0:# and species[8] == 0:
+                    for t in range(sw_par.number['hydraulic_steps']):
+                        error_value = species[3][t]
+                        if error_value == 4:
+                            for k in range(sw_par.number['pumps']):
+                                flow_pump = species[6][k][t]
+                                if flow_pump < 0.1:
+                                    species[2][t + k * time_dur] += random.random() * ga_par.specialize_operators['error_delta_value']
 
                         species[8] = 1
 
@@ -289,7 +289,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0 and species[8] == 0:
+                if ga_par.number['float_genes'] > 0:# and species[8] == 0:
                     for j in range(time_dur):
                         kk=0
                         for k in range(len(sw_par.mes['nodes_names'])):
@@ -309,20 +309,16 @@ class GA_function:
 
                             if k == 0:
                                 if delta_min_pressure < 0:
-                                    #print('min1',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
                                     species[2][j] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
-                                    #print('min2',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
                                 if delta_max_pressure < 0:
                                     species[2][j] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
                             if k == 1:
                                 if  delta_min_pressure < 0:
-                                    #print('min3',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
                                     species[2][j] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
-                                    #print('min4',j,pressure_WMO, pressure_min_lev, delta_min_pressure, species[2][j])
 
                                 if delta_max_pressure < 0:
                                     species[2][j] -= random.random() * ga_par.specialize_operators[
@@ -351,7 +347,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0 and species[8] == 0:
+                if ga_par.number['float_genes'] > 0:# and species[8] == 0:
                     for j in range(time_dur-1):
                         kk = 0
                         for k in sw_par.mes_pressure_index['pump']:
@@ -383,7 +379,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0  and species[8] == 0:
+                if ga_par.number['float_genes'] > 0:#  and species[8] == 0:
 
                     for j in range(len(sw_par.tanks['names'])):
 
@@ -412,7 +408,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0 and species[8] == 0:
+                if ga_par.number['float_genes'] > 0:# and species[8] == 0:
                     for j in range(time_dur):
                         for k in range(len(sw_par.mes['links_names'])):
 
@@ -442,7 +438,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0 and species[8] == 0:
+                if ga_par.number['float_genes'] > 0:# and species[8] == 0:
                     for j in range(time_dur):
                             if sw_par.energy_taryf[j] == sw_par.lc:
                                 species[2][j] += random.random() * ga_par.specialize_operators[
@@ -714,26 +710,9 @@ class GA_function:
 
         print(self.print_stats)
 
-        #print(f"error: {ga.pop['last_best_solution'][3]}")
-        #print(f"head 1: {ga.pop['last_best_solution'][4][0]}")
-        #print(f"head 2: {ga.pop['last_best_solution'][4][1]}")
-        #print(f"head 55: {ga.pop['last_best_solution'][4][2]}")
-        #print(f"head 83: {ga.pop['last_best_solution'][4][3]}")
-        #print(f"head 158: {ga.pop['last_best_solution'][4][4]}")
-        #print(f"tank: {ga.pop['last_best_solution'][5][0]}")
-        #print(f"flow F: {ga.pop['last_best_solution'][6][0]}")
-        #print(f"flow K: {ga.pop['last_best_solution'][6][1]}")
-        #print(f"flow P: {ga.pop['last_best_solution'][6][2]}")
-
     def plot_mes(self, axis, type, which, location):
 
-        x = np.arange(0, sw_par.time['duration_h'])
-
-        if type == 2:
-            mes_name = 'Pump speed'
-            name = 'pumps_speed'
-            ylabel = 'Speed'
-
+        x = np.arange(0, sw_par.time['duration_h']*int(3600/sw_par.time['hydraulic_step_s']))
 
         if type == 4:
             mes_name = 'nodes'
@@ -748,19 +727,19 @@ class GA_function:
             name = 'flow'
             ylabel = 'Flow [m^3/h]'
 
-        upper_bound = [sw_par.level['max_'+name][which[0]]]*sw_par.time['duration_h']
-        lower_bound = [sw_par.level['min_'+name][which[0]]]*sw_par.time['duration_h']
+        upper_bound = [sw_par.level['max_'+name][which[0]]]*sw_par.time['duration_h']\
+                      *int(3600/sw_par.time['hydraulic_step_s'])
+        lower_bound = [sw_par.level['min_'+name][which[0]]]*sw_par.time['duration_h']\
+                      *int(3600/sw_par.time['hydraulic_step_s'])
         self.ax[axis[0], axis[1]].clear()
-        color = ['b','m','g']
+        color = ['b','m','g','k']
         for i in range(len(which)):
-            #print(self.pop['last_best_solution'][2][0])
-            #print(self.pop['last_best_solution'][type][which[i]])
             self.ax[axis[0], axis[1]].plot(x, self.pop['last_best_solution'][type][which[i]],
                                             color=color[i], linewidth=1)
         self.ax[axis[0], axis[1]].plot(x, lower_bound, color='r', linewidth=1)
         self.ax[axis[0], axis[1]].plot(x, upper_bound, color='r', linewidth=1)
-        self.ax[axis[0], axis[1]].set_ylabel(ylabel, fontsize=9)
-        self.ax[axis[0], axis[1]].set_xlabel("Time [h]", fontsize=9)
+        self.ax[axis[0], axis[1]].set_ylabel(ylabel, fontsize=8)
+        self.ax[axis[0], axis[1]].set_xlabel("Time [h]", fontsize=8)
 
 
         labels =[]
@@ -772,8 +751,8 @@ class GA_function:
             else:
                 names += sw_par.mes[mes_name +'_names'][which[i]]
 
-        self.ax[axis[0], axis[1]].set_title(name + ' at '+ names,
-                                            fontsize = 10)
+        #self.ax[axis[0], axis[1]].set_title(name + ' at '+ names,
+        #                                    fontsize = 8)
         self.ax[axis[0], axis[1]].xaxis.set_tick_params(labelsize=8)
         self.ax[axis[0], axis[1]].yaxis.set_tick_params(labelsize=6)
 
@@ -786,7 +765,7 @@ class GA_function:
         self.plot['best_sol'] = self.pop['best_solutions']
         self.plot['mean_sol'] = [self.pop['mean_pop_value']]
         self.plot['x'] = range(len(self.plot['best_sol']))
-        figure, ax = plt.subplots(nrows=2, ncols=4, figsize = (14,10))
+        figure, ax = plt.subplots(nrows=3, ncols=6, figsize = (18,10))
         mngr = plt.get_current_fig_manager()
         #mngr.window.geometry("+100+0")
         self.figure = figure
@@ -813,8 +792,8 @@ class GA_function:
         error = ''
         i = 0
         for er in epa['pop'][0][3]:
-            if er == 4:
-                error += str(i) + ', '
+            if er > 0:
+                error += str(i) +'/'+ str(er)+', '
             i += 1
         self.figure.text(0.01, 0.95, ' ' * 800, fontsize=12, bbox=dict(facecolor='white', edgecolor='white'))
         self.figure.text(0.01, 0.95, self.print_stats, fontsize=12, bbox ={'facecolor':'white'})
@@ -826,15 +805,33 @@ class GA_function:
         self.plot_fitnes_values([0,0],i)
         self.plot_mes([0, 1], 4, [0],'upper right')
         self.plot_mes([0, 2], 4, [1], 'upper right')
-        self.plot_mes([1, 1], 5, [0], 'upper right')
-        self.plot_mes([1, 2], 6, [0], 'upper right')
+        self.plot_mes([0, 3], 4, [2], 'upper right')
+        self.plot_mes([0, 4], 4, [3], 'upper right')
+        self.plot_mes([0, 5], 4, [4], 'upper right')
+        self.plot_mes([1, 0], 4, [5], 'upper right')
+        self.plot_mes([1, 1], 4, [6], 'upper right')
+        self.plot_mes([1, 2], 4, [7], 'upper right')
+        self.plot_mes([1, 3], 4, [8], 'upper right')
+        self.plot_mes([1, 4], 4, [9], 'upper right')
+        self.plot_mes([1, 5], 5, [0], 'upper right')
+        self.plot_mes([2, 0], 5, [1,2], 'upper right')
+        self.plot_mes([2, 2], 5, [3], 'upper right')
+        self.plot_mes([2, 3], 6, [0, 1, 3], 'upper right')
+        self.plot_mes([2, 4], 6, [4,5], 'upper right')
+        self.plot_mes([2, 5], 6, [5], 'upper right')
         #self.plot_mes([1, 0], 2, [0], 'upper right')
         self.print_values_on_plot(epa)
+
+        self.save_figure()
+
         self.figure.canvas.draw()
 
         self.figure.canvas.flush_events()
 
         time.sleep(0.1)
+
+    def save_figure(self):
+        self.figure.savefig('last_figure.png')
 
 def save_variabele_space_to_file(file_name, input_dictionary):
 
@@ -878,6 +875,8 @@ if __name__ == '__main__':
             ga.print_statistics()
 
             ga.ga_plot(i, ga.pop)
+
+            ga.ep.save_last_net(ga.pop['pop'][0][2])
 
             if ga.ga_stop_criterion() == 0:
 
