@@ -36,11 +36,14 @@ class Epa:
         self.pumps_index = pump_index
 
     def get_node_index(self):
-        node_index = []
-        for nn in self.sw_parameters.mes['nodes_names']:
+        mes_node_index = []
+        print(sw_par.mes['nodes_names'])
+        for nn in sw_par.mes['nodes_names']:
             ret, nx = et.ENgetnodeindex(nn)
-            node_index.append(nx)
-            self.node_index = node_index
+            mes_node_index.append(nx)
+            self.mes_node_index = mes_node_index
+            print(nn, mes_node_index)
+        aaaa
 
         tank_index = []
         for nn in self.sw_parameters.tanks['names']:
@@ -50,12 +53,13 @@ class Epa:
 
     def get_node_pattern(self):
         node_pattern_index= []
-
-        for nn in sw_par.mes_pressure_index['inside']:
-            ret, nx = et.ENgetnodevalue(nn, et.EN_PATTERN)
+        for nn in sw_par.mes_pressure_number['inside']:
+            print(self.mes_node_index[nn])
+            ret, nx = et.ENgetnodevalue(self.mes_node_index[nn], et.EN_PATTERN)
             node_pattern_index.append(int(nx))
+            print(node_pattern_index)
             self.node_pattern_index = node_pattern_index
-
+        aaaaa
     def get_pumps_pattern_index(self):
         pattern_index = []
         for pn in self.sw_parameters.pumps['patterns_names']:
@@ -73,8 +77,11 @@ class Epa:
     def get_pattern_values(self):
         pattern_value = []
         self.demand_patterns_values = []
+        print(self.node_pattern_index)
+        aaaaaa
         for pn in self.node_pattern_index:
             ret, T = et.ENgetpatternlen(pn)
+            print(pn, T)
             for t in range(1,T+1):
                 ret, px = et.ENgetpatternvalue(pn,t)
                 pattern_value.append(px)

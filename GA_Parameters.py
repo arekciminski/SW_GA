@@ -17,7 +17,7 @@ class ga_par:
                                 0,
                                 0],
     number = {'generations': 500,
-              'specimen': 150,
+              'specimen': 10,
               'float_genes': int(len(sw_par.pumps['names']) * sw_par.time['duration_h'] * \
                              3600/sw_par.time['hydraulic_step_s']),
               'int_genes': 0}
