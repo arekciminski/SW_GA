@@ -111,6 +111,7 @@ class Epa:
         et.ENsaveinpfile('temporary_' + sw_par.file_name[0])
 
     def get_set_parameters(self):
+        self.open_epanet()
         self.get_link_index()
         self.get_node_index()
         self.get_pattern_index()
@@ -220,7 +221,8 @@ class Epa:
 
         self.prepare_empty_dict_to_comput()
 
-        self.open_epanet()
+
+        #self.open_epanet()
         self.set_time_duration()
 
         self.set_tank_inital()
