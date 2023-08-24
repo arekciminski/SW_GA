@@ -45,7 +45,7 @@ for i in range(50):
     figure.canvas.flush_events()
 
     time.sleep(0.1)'''
-# SuperFastPython.com
+'''# SuperFastPython.com
 # example of a parallel for loop with multiple arguments
 from time import sleep
 from random import random
@@ -72,4 +72,17 @@ if __name__ == '__main__':
         # call the same function with different data in parallel
         for result in pool.starmap(task, items):
             # report the value to show progress
-            print(result)
+            print(result)'''
+
+from SW_Parameters import sw_par
+
+from Get_data_from_DWDS import Epa
+
+et = Epa(sw_par)
+et.open_epanet()
+et.get_number_of_nodes()
+print(et.get_number_of_nodes())
+et.get_link_index()
+print(et.link_index)
+et.get_node_index()
+et.close_epanet()

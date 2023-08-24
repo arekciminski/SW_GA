@@ -9,6 +9,9 @@ class Epa:
     def open_epanet(self):
         ret = et.ENopen(self.sw_parameters.file_name[0], "Net3.rpt", "")
 
+    def open_H(self):
+        ret = et.ENopenH()
+
     def close_epanet(self):
         ret = et.ENclose()
 

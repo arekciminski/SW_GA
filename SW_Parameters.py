@@ -1,6 +1,6 @@
 class sw_par:
 
-    file_name = "Gdynia_Dolna_strefa_probny",
+    file_name = "siec_maly",
 
     time = {'duration_h': 24,  # [h]
             'hydraulic_step_s': 1800}
@@ -22,7 +22,7 @@ class sw_par:
     pumps['patterns_names'] = pumps['names']
 
     mes = {'links_names': pumps['names'],
-            'nodes_names': ['M33_3', '309','443','M38_1','316', '312', '373', 'R1308_1',
+            'nodes_names': ["M33_3", '309','443','M38_1','316', '312', '373', 'R1308_1',
                             '303-pob', 'M35_Partyz_1pob', 'M89_1-pob','372-pob','M76_16','RUMIAREDA_POBOR','1']}
     mes['nodes_names'].extend(tanks['names'])
     mes['tank_names'] = tanks['names']
