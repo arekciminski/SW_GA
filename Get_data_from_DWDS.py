@@ -92,7 +92,6 @@ class Epa:
             for t in range(self.sw_parameters.number['hydraulic_steps']):
                  et.ENsetpatternvalue(self.pumps_pattern_index[i], t + 1, species[i*\
                                                                         self.sw_parameters.number['hydraulic_steps'] + t])
-
         for i in range(len(self.node_pattern_index)):
             for t in range(self.sw_parameters.number['hydraulic_steps']):
                 et.ENsetpatternvalue(self.node_pattern_index[i], t + 1,

@@ -30,7 +30,6 @@ class GA_function:
         self.ep.get_node_pattern_names()
         self.ep.get_pumps_pattern_index()
         self.ep.get_pattern_values()
-
         self.ep.close_epanet()
 
     def ga_initialization(self):
@@ -81,7 +80,7 @@ class GA_function:
 
         pressure_penalty = 0
 
-        for j in range(epa.sw_parameters.time['duration_h']):
+        for j in range(epa.sw_parameters.number['hydraulic_steps']):
             for i in range(len(epa.sw_parameters.mes['nodes_names']) - len(epa.sw_parameters.tanks['names'])):
                 cross_values = -epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][j] + \
                                epa.sw_parameters.level['min_pressure'][i]
@@ -100,7 +99,7 @@ class GA_function:
         acceleration_pressure_penalty = 0
         max_delta_pump_pressure = ga_par.specialize_operators['max_delta_pump_pressure']
 
-        for t in range(epa.sw_parameters.time['duration_h']-1):
+        for t in range(epa.sw_parameters.number['hydraulic_steps']-1):
             for i in sw_par.mes_pressure_index['pump']:
                 delta_pressure = abs(epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t] - \
                                epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t+1])
@@ -114,7 +113,7 @@ class GA_function:
         acceleration_speed_penalty = 0
         max_delta_pump_speed = ga_par.specialize_operators['max_delta_pump_speed']
 
-        for t in range(sw_par.time['duration_h']-1):
+        for t in range(sw_par.number['hydraulic_steps']-1):
             for i in range(len(sw_par.mes['links_names'])):
                 delta_speed = abs(epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][t] - \
                                epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][t+1])
@@ -128,7 +127,7 @@ class GA_function:
         acceleration_flow_penalty = 0
         max_delta_pump_flow = ga_par.specialize_operators['max_delta_pump_flow']
 
-        for t in range(epa.sw_parameters.time['duration_h']-1):
+        for t in range(epa.sw_parameters.number['hydraulic_steps']-1):
             for i in range(len(epa.sw_parameters.mes['links_names'])):
                 delta_flow = abs(epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][t] - \
                                epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][t+1])
@@ -140,7 +139,7 @@ class GA_function:
     def penalty_function_tank_limits(self, epa):
         tank_penalty = 0
 
-        for j in range(epa.sw_parameters.time['duration_h']):
+        for j in range(epa.sw_parameters.number['hydraulic_steps']):
             for i in range(len(epa.sw_parameters.tanks['names'])):
                 cross_values = -epa.data['tank_output_' + epa.sw_parameters.tanks['names'][i]][0][j] + \
                                epa.sw_parameters.level['min_tank'][i]
@@ -157,7 +156,7 @@ class GA_function:
     def penalty_function_flow_limits(self, epa):
 
         flow_penalty = 0
-        for j in range(epa.sw_parameters.time['duration_h']):
+        for j in range(epa.sw_parameters.number['hydraulic_steps']):
             for i in range(len(epa.sw_parameters.mes['links_names'])):
                 cross_values = -epa.data['flow_output_' + epa.sw_parameters.mes['links_names'][i]][0][j] + \
                                epa.sw_parameters.level['min_flow'][i]
@@ -176,7 +175,7 @@ class GA_function:
 
         error_values = epa.data['error_output'][0]
 
-        for j in range(epa.sw_parameters.time['duration_h']):
+        for j in range(epa.sw_parameters.number['hydraulic_steps']):
             k = 0
             for name in epa.sw_parameters.mes['links_names']:
                 if epa.data['flow_output_' + name][0][j] <= 0 :
@@ -191,7 +190,7 @@ class GA_function:
         energy_penalty = 0
 
         for name in epa.sw_parameters.pumps['names']:
-            for t in range(sw_par.time['duration_h']):
+            for t in range(sw_par.number['hydraulic_steps']):
                 energy_penalty += sw_par.energy_taryf[t] * \
                                   epa.data['energy_output_'+name][0][t]
 
@@ -266,18 +265,19 @@ class GA_function:
 
     def ga_mutiation_SGO_error(self):
 
-        time_dur = sw_par.time['duration_h']
+        number_hydraulic_steps = sw_par.number['hydraulic_steps']
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:# and species[8] == 0:
-                    for t in range(sw_par.number['hydraulic_steps']):
+                    for t in range(number_hydraulic_steps):
                         error_value = species[3][t]
                         if error_value == 4:
                             for k in range(sw_par.number['pumps']):
                                 flow_pump = species[6][k][t]
                                 if flow_pump < 0.1:
-                                    species[2][t + k * time_dur] += random.random() * ga_par.specialize_operators['error_delta_value']
+                                    species[2][t + k * number_hydraulic_steps] += random.random() * \
+                                                                    ga_par.specialize_operators['error_delta_value']
 
                         species[8] = 1
 
@@ -285,12 +285,12 @@ class GA_function:
 
     def ga_mutiation_SGO_pressure(self):
 
-        time_dur = sw_par.time['duration_h']
+        number_hydraulic_steps = sw_par.number['hydraulic_steps']
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:# and species[8] == 0:
-                    for j in range(time_dur):
+                    for t in range(number_hydraulic_steps):
                         kk=0
                         for k in range(len(sw_par.mes['nodes_names'])):
 
@@ -298,57 +298,100 @@ class GA_function:
                             pressure_max_level = sw_par.level['max_pressure'][k]
 
                             if k < len(sw_par.mes['nodes_names']) - len(sw_par.tanks['names']):
-                                pressure_WMO = species[4][k][j]
+                                pressure_WMO = species[4][k][t]
                                 delta_min_pressure = - pressure_min_lev + pressure_WMO
                                 delta_max_pressure = - pressure_WMO + pressure_max_level
                             else:
-                                tank_level = species[5][kk][j]
+                                tank_level = species[5][kk][t]
                                 delta_min_pressure = - pressure_min_lev + tank_level
                                 delta_max_pressure = - tank_level + pressure_max_level
                                 kk = kk + 1
 
-                            if k == 0:
+                            if k < 4:
                                 if delta_min_pressure < 0:
-                                    species[2][j] += random.random() * ga_par.specialize_operators[
+                                    species[2][t + k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
                                 if delta_max_pressure < 0:
-                                    species[2][j] -= random.random() * ga_par.specialize_operators[
+                                    species[2][t + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
-                            if k == 1:
-                                if  delta_min_pressure < 0:
-                                    species[2][j] += random.random() * ga_par.specialize_operators[
+                            if k ==4 or k == 5 or k == 6 or k == 11 or k == 12 or k == 13:
+                                if delta_min_pressure < 0:
+                                    species[2][t + 2*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
-
                                 if delta_max_pressure < 0:
-                                    species[2][j] -= random.random() * ga_par.specialize_operators[
+                                    species[2][t + 2*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
+                            if k == 7 or k == 9 or k == 10:
+                                if delta_min_pressure < 0:
+                                    species[2][t + number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+                                    species[2][t] += random.random() * ga_par.specialize_operators[
+                                                                                  'pressure_delta_value']
+                                if delta_max_pressure < 0:
+                                    species[2][t + number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+                                    species[2][t] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
+                            if k == 8:
+                                if delta_min_pressure < 0:
+                                    species[2][t + number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+                                if delta_max_pressure < 0:
+                                    species[2][t + number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+
+                            if k == 14:
+                                if delta_min_pressure < 0:
+                                    species[2][t + 3*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                    'pressure_delta_value']
+                                if delta_max_pressure < 0:
+                                    species[2][t + 3*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
                              #Zbiorniki
-                            if k == 2:
+                            if k == 15 or k==16 or k== 17:
                                 if delta_min_pressure < 0:
 
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
-                                        species[2][j - jj] += random.random() * \
+                                        species[2][t - jj] += random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
-
+                                        species[2][t - jj + number_hydraulic_steps] += random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+                                        species[2][t - jj + 2*number_hydraulic_steps] += random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
                                 if delta_max_pressure < 0:
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
-                                        species[2][j - jj] -= random.random() * \
+                                        species[2][t - jj] -= random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
+                                        species[2][t - jj + number_hydraulic_steps] -= random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+                                        species[2][t - jj + 2*number_hydraulic_steps] -= random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+                            if k == 18:
+                                if delta_min_pressure < 0:
 
+                                    for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
+                                        species[2][t - jj + 3*number_hydraulic_steps] += random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+                                if delta_max_pressure < 0:
+                                    for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
+                                        species[2][t - jj + 3*number_hydraulic_steps] -= random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
                             species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
     def ga_mutiation_SGO_acceleration_pump_pressure(self):
 
-        time_dur = sw_par.time['duration_h']
+        number_hydraulic_steps = sw_par.number['hydraulic_steps']
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:# and species[8] == 0:
-                    for j in range(time_dur-1):
+                    for j in range(number_hydraulic_steps-1):
                         kk = 0
                         for k in sw_par.mes_pressure_index['pump']:
 
@@ -356,18 +399,16 @@ class GA_function:
 
                             delta_pump_pressure = species[4][k][j] - species[4][k][j+1]
 
-                            if k == 0:
-
-                                if delta_pump_pressure < - max_delta_pump_pressure:
-                                    species[2][j] += random.random() * ga_par.specialize_operators[
-                                                                        'pressure_delta_value']
-                                    species[2][j+1] -= random.random() * ga_par.specialize_operators[
-                                                                        'pressure_delta_value']
-                                if delta_pump_pressure > max_delta_pump_pressure:
-                                    species[2][j] -= random.random() * ga_par.specialize_operators[
-                                                                        'pressure_delta_value']
-                                    species[2][j] += random.random() * ga_par.specialize_operators[
-                                                                        'pressure_delta_value']
+                            if delta_pump_pressure < - max_delta_pump_pressure:
+                                species[2][j + k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                                                    'pressure_delta_value']
+                                species[2][j+1 + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                                                    'pressure_delta_value']
+                            if delta_pump_pressure > max_delta_pump_pressure:
+                                species[2][j + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                                                    'pressure_delta_value']
+                                species[2][j +1+ k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                                                    'pressure_delta_value']
 
                             species[8] = 1
 
@@ -375,58 +416,94 @@ class GA_function:
 
     def ga_mutiation_SGO_end_tank_level(self):
 
-        time_dur = sw_par.time['duration_h']
+        number_hydraulic_steps = sw_par.number['hydraulic_steps']
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:#  and species[8] == 0:
 
-                    for j in range(len(sw_par.tanks['names'])):
+                    for k in range(len(sw_par.tanks['names'])):
 
-                        init_level = species[5][j][0]
-                        end_level = species[5][j][-1]
+                        init_level = species[5][k][0]
+                        end_level = species[5][k][-1]
                         if end_level - init_level > ga_par.specialize_operators['delta_initial_end_tank_level']:
-                            for k in range(time_dur - ga_par.specialize_operators['end_tank_level_horizon'],
-                                           time_dur):
-                                species[2][j + k] -= random.random() * ga_par.specialize_operators[
-                                    'pressure_delta_value']
 
+                            if k==0 or k==1 or k ==2:
+
+                                for t in range(number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
+                                               number_hydraulic_steps):
+                                    species[2][t] -= random.random() * ga_par.specialize_operators[
+                                        'pressure_delta_value']
+                                    species[2][t + number_hydraulic_steps] -= random.random() * \
+                                                                              ga_par.specialize_operators[
+                                                                                  'pressure_delta_value']
+                                    species[2][t + 2*number_hydraulic_steps] -= random.random() * \
+                                                                              ga_par.specialize_operators[
+                                                                                  'pressure_delta_value']
+
+                            if k == 3:
+
+                                for t in range(
+                                        number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
+                                        number_hydraulic_steps):
+                                    species[2][t + 3 * number_hydraulic_steps] -= random.random() * \
+                                                                                  ga_par.specialize_operators[
+                                                                                      'pressure_delta_value']
 
                         if end_level - init_level < - ga_par.specialize_operators['delta_initial_end_tank_level']:
-                            for k in range(time_dur - ga_par.specialize_operators['end_tank_level_horizon'],
-                                           time_dur):
-                                species[2][j + k] += random.random() * ga_par.specialize_operators[
-                                    'pressure_delta_value']
+                            if k==0 or k==1 or k ==2:
+                                for k in range(number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
+                                               number_hydraulic_steps):
 
+                                    for t in range(
+                                            number_hydraulic_steps - ga_par.specialize_operators[
+                                                'end_tank_level_horizon'],
+                                            number_hydraulic_steps):
+
+                                        species[2][t] += random.random() * ga_par.specialize_operators[
+                                            'pressure_delta_value']
+                                        species[2][t + number_hydraulic_steps] += random.random() * \
+                                                                                  ga_par.specialize_operators[
+                                                                                      'pressure_delta_value']
+                                        species[2][t + 2 * number_hydraulic_steps] += random.random() * \
+                                                                                      ga_par.specialize_operators[
+                                                                                          'pressure_delta_value']
+                            if k == 3:
+
+                                for t in range(
+                                        number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
+                                        number_hydraulic_steps):
+                                    species[2][t + 3 * number_hydraulic_steps] += random.random() * \
+                                                                                  ga_par.specialize_operators[
+                                                                                      'pressure_delta_value']
                         species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
     def ga_mutiation_SGO_flow(self):
 
-        time_dur = sw_par.time['duration_h']
+        number_hydraulic_steps = sw_par.number['hydraulic_steps']
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:# and species[8] == 0:
-                    for j in range(time_dur):
+                    for t in range(number_hydraulic_steps):
                         for k in range(len(sw_par.mes['links_names'])):
 
-                            flow_mes = species[4][k][j]
+                            flow_mes = species[4][k][t]
 
                             flow_min_level = sw_par.level['min_flow'][k]
                             flow_max_level = sw_par.level['max_flow'][k]
 
                             delta_min_flow = - flow_min_level + flow_mes
                             delta_max_flow = - flow_mes + flow_max_level
-                            if k == 0:
-                                if delta_min_flow < 0:
-                                    species[2][j] += random.random() * ga_par.specialize_operators[
-                                    'flow_delta_value']
+                            if delta_min_flow < 0:
+                                species[2][t + k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                'flow_delta_value']
 
-                                if delta_max_flow < 0:
-                                    species[2][j] -= random.random() * ga_par.specialize_operators[
-                                        'flow_delta_value']
+                            if delta_max_flow < 0:
+                                species[2][t + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                    'flow_delta_value']
 
                             species[8] = 1
 
@@ -434,21 +511,21 @@ class GA_function:
 
     def ga_mutiation_SGO_energy(self):
 
-        time_dur = sw_par.time['duration_h']
+        number_hydraulic_steps = sw_par.number['hydraulic_steps']
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:# and species[8] == 0:
-                    for j in range(time_dur):
-                            if sw_par.energy_taryf[j] == sw_par.lc:
-                                species[2][j] += random.random() * ga_par.specialize_operators[
-                                    'energy_delta_value']
+                    for k in range(sw_par.number['pumps']):
+                        for t in range(number_hydraulic_steps):
+                                if sw_par.energy_taryf[t] == sw_par.lc:
+                                    species[2][t + k* number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                        'energy_delta_value']
 
-                            if sw_par.energy_taryf[j] == sw_par.hc:
-                                species[2][j] -= random.random() * ga_par.specialize_operators[
-                                    'energy_delta_value']
-
-                            species[8] = 1
+                                if sw_par.energy_taryf[t] == sw_par.hc:
+                                    species[2][t + k* number_hydraulic_steps ] -= random.random() * ga_par.specialize_operators[
+                                        'energy_delta_value']
+                species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
 
@@ -712,8 +789,7 @@ class GA_function:
 
     def plot_mes(self, axis, type, which, location):
 
-        x = np.arange(0, sw_par.time['duration_h']*int(3600/sw_par.time['hydraulic_step_s']))
-
+        x = np.arange(0, sw_par.time['duration_h'],sw_par.time['hydraulic_step_s']/3600)
         if type == 4:
             mes_name = 'nodes'
             name = 'pressure'
@@ -727,10 +803,8 @@ class GA_function:
             name = 'flow'
             ylabel = 'Flow [m^3/h]'
 
-        upper_bound = [sw_par.level['max_'+name][which[0]]]*sw_par.time['duration_h']\
-                      *int(3600/sw_par.time['hydraulic_step_s'])
-        lower_bound = [sw_par.level['min_'+name][which[0]]]*sw_par.time['duration_h']\
-                      *int(3600/sw_par.time['hydraulic_step_s'])
+        upper_bound = [sw_par.level['max_'+name][which[0]]]*sw_par.number['hydraulic_steps']
+        lower_bound = [sw_par.level['min_'+name][which[0]]]*sw_par.number['hydraulic_steps']
         self.ax[axis[0], axis[1]].clear()
         color = ['b','m','g','k']
         for i in range(len(which)):
@@ -850,7 +924,6 @@ if __name__ == '__main__':
         ga = GA_function()
 
         ga.ga_initialization()
-
 
         ga.ga_fitnes_function()
 
