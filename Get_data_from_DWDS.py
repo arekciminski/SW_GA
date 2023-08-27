@@ -40,13 +40,13 @@ class Epa:
         for nn in self.sw_parameters.mes['nodes_names']:
             ret, nx = et.ENgetnodeindex(nn)
             node_index.append(nx)
-            self.node_index = node_index
+        self.node_index = node_index
 
         tank_index = []
         for nn in self.sw_parameters.tanks['names']:
             ret, nx = et.ENgetnodeindex(nn)
             tank_index.append(nx)
-            self.tank_index = tank_index
+        self.tank_index = tank_index
 
     def get_node_pattern(self):
         node_pattern_index= []

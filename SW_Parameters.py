@@ -18,21 +18,18 @@ class sw_par:
     energy_taryf.extend([hc] * 4 * multiplication)
     energy_taryf.extend([lc] * 6 * multiplication)
 
-    pumps = {'names': ['P1_Sieradzka','SUW_Kolibki', 'P_P1','SUW_REDA','wielko_polsk',
-                       'dembinski','skarbka_hyd','kartuska_hyd']}
+    pumps = {'names': ['P1_SIERADZKA','SUW_KOLIBKI', 'P_P1','SUW_REDA']}
     pumps['patterns_names'] = pumps['names']
 
     mes = {'links_names': pumps['names'],
-            'nodes_names': ['M33_3', '309','443','M38_1','316', '312', '373', 'R1308_1',
-                            '303-pob', 'M35_Partyz_1pob', 'M89_1-pob','372-pob','M76_16','RUMIAREDA_POBOR','1']}
-    level = {'min_pressure': [40, 46, 42, 42, 20, 30, 28, 20,
-                              64, 58, 55, 64, 56, 45, 40],
-             'max_pressure': [52, 54, 49, 56, 35, 40, 34, 32,
-                              72, 66, 80, 70, 64, 55, 55],
+            'nodes_names': ['M33_3', '309', '443', 'M38_1', '316', '312', '373', 'R1308_1',
+                            'M50_4', '37_2', 'M89_1-pob','372-pob','M28_1','RUMIAREDA_POBOR','1']}
+    level = {'min_pressure': [30, 30, 30, 30, 20, 30, 28, 20, 1,  1,  53, 60, 10, 44, 40],
+             'max_pressure': [52, 60, 49, 56, 35, 40, 34, 32, 6, 6, 80, 66, 25, 50, 55],
              'min_tank' : [1, 1, 1, 1],
-             'max_tank': [4.0, 4.25, 4.25, 5.0],
+             'max_tank': [5.0, 4.25, 4.25, 4.0],
              'min_flow': [0, 0, 0, 0, 0, 0, 0, 0],
-             'max_flow': [4000, 3000, 17000, 30000, 600, 140, 200, 200],
+             'max_flow': [3000, 3000, 20000, 32000, 600, 140, 200, 200],
              'max_pumps_speed':[1],
              'min_pumps_speed': [0]
     }

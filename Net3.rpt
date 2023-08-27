@@ -1,4 +1,4 @@
-  Page 1                                    Fri Aug 25 09:17:12 2023
+  Page 1                                    Sun Aug 27 20:48:50 2023
 
   ******************************************************************
   *                           E P A N E T                          *
@@ -7,4 +7,30 @@
   *                         Version 2.00.12                        *
   ******************************************************************
   
-  Analysis begun Fri Aug 25 09:17:12 2023
+  Analysis begun Sun Aug 27 20:48:50 2023
+
+  WARNING: Negative pressures at 6:00:00 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 6:00:00 hrs.
+  
+  WARNING: Negative pressures at 7:00:00 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 7:00:00 hrs.
+  
+  WARNING: Negative pressures at 8:00:00 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 8:00:00 hrs.
+  
+  WARNING: Negative pressures at 9:00:00 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 9:00:00 hrs.
+  
+  WARNING: Negative pressures at 10:00:00 hrs.
+  
+  WARNING: Negative pressures at 15:30:00 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 15:30:00 hrs.
+  
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 22:58:14 hrs.
+  
+  WARNING: Maximum trials exceeded at 23:00:00 hrs. System may be unstable.
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 23:00:00 hrs.
+  
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 23:30:00 hrs.
+  
+  Analysis ended Sun Aug 27 20:48:56 2023

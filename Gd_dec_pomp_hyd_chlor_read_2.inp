@@ -104,7 +104,7 @@
  R25_1-pob       	19.55       	130.96      	poborek         	;
  R1302_1-pob     	27          	108.52      	poborek         	;
  R1302_3-pob     	42          	26.11       	poborek         	;
- R1308_1         	52.3        	0           	                	;
+ R1308_1         	52.3        	1           	H_WIELKOPOLSKAI 	;
  M38_1           	5.7         	0           	                	;
  H_Redl_SRED-pob 	80          	1           	H_REDLOWO_SREDN 	;Pobor STREFA ŒREDNIA
  87              	50.95       	0           	                	;
@@ -114,7 +114,7 @@
  M81_3-pob       	43.8        	0           	                	;
  M70_7-pob       	23          	474.29      	poborek         	;
  700-pob         	42          	10.12       	poborek         	;POBOR; wysokoœæ do sprwdzenia
- 316             	49.85       	0           	                	;
+ 316             	49.85       	1           	H_SKARBKA       	;
  237             	15          	90.44       	poborek         	;
  703-popb        	17          	107.86      	poborek         	;
  701-pob         	23.8        	283.24      	poborek         	;
@@ -122,9 +122,9 @@
  M70_6-pob       	22.4        	102.94      	poborek         	;
  M54_8-pob       	25          	157.86      	poborek         	;
  M54_9           	30.4        	37.78       	poborek         	;
- 312             	43.5        	0           	                	;
+ 312             	43.5        	1           	H_KARTUSKA      	;
  M60_4           	15.8        	185.6       	poborek         	;
- 373             	46.16       	0           	                	;
+ 373             	46.16       	1           	H_DEMBINSKIEGO  	;
  M60_1           	21          	164.74      	poborek         	;
  396             	74          	0           	                	;
  M26_6-pob       	43          	59.94       	poborek         	;srednie cisnieni ok. 30m (0,3 MPa)
@@ -133,10 +133,6 @@
  pom_pob         	44          	400.88      	poborek         	;pomorska, witominska
  1               	6           	1.28        	RUMIAzREDA      	;Rumia z Reda pobor
  M26_4           	22.73       	0           	                	;œred ciœ 53m
- 2               	80          	1           	H_WIELKOPOLSKAI 	;
- 3               	104.5       	1           	H_DEMBINSKIEGO  	;
- 4               	80.5        	1           	H_SKARBKA       	;
- 5               	57          	1           	H_KARTUSKA      	;
 
 [RESERVOIRS]
 ;ID              	Head        	Pattern         
@@ -304,16 +300,12 @@
 
 [PUMPS]
 ;ID              	Node1           	Node2           	Parameters
- P1_Sieradzka    	UW_SIERADZKA    	M33_3           	HEAD SIERADZKA_P1	PATTERN P1_SIERADZKA	;zmieniona
+ P1_SIERADZKA    	UW_SIERADZKA    	M33_3           	HEAD SIERADZKA_P1	PATTERN P1_SIERADZKA	;zmieniona
  233             	M28_1           	74              	HEAD REDLOWO_Z1	;ZASILA STREFÊ ŒREDNI¥
- 234             	M28_1           	105             	HEAD REDLOWO_Z4	PATTERN 234	;Zasila STREFE WYSOK¥
+ 234             	M28_1           	105             	HEAD REDLOWO_Z4	;Zasila STREFE WYSOK¥
  SUW_KOLIBKI     	K4_Kolibki      	309             	HEAD nasza_zastepcza	PATTERN SUW_KOLIBKI	;
- P4_PP1          	445             	443             	HEAD P1_Z3	PATTERN P4_PP1	;
+ P_P1            	445             	443             	HEAD P1_Z3	PATTERN P_P1	;
  SUW_REDA        	UW_REDAII       	M38_1           	HEAD REDA_P1	PATTERN SUW_REDA	;
- wielko_polsk    	R1308_1         	2               	HEAD WIELKOPOLSKA	PATTERN wielko_polsk	;h_out=51,2
- dembinski       	373             	3               	HEAD DEMBINSKIEGO	PATTERN dembinski	;h_out=75
- skarbka_hyd     	316             	4               	HEAD SKARBKA_Z1	PATTERN skarbka_hyd	;h_out=46,1
- kartuska_hyd    	312             	5               	HEAD KARTUSKA	PATTERN kartuska_hyd	;h_out=58,35
 
 [VALVES]
 ;ID              	Node1           	Node2           	Diameter    	Type	Setting     	MinorLoss   
@@ -2084,30 +2076,30 @@
  SUW_KOLIBKI     	0.689521053 	0.701271412 	0.705271534 	0.739772587 	0.712521755 	0.705021526 
  SUW_KOLIBKI     	0.767773442 	0.728772251 	0.726272175 	0.720021984 	0.677770694 	0.681770816 
 ;
- P4_PP1          	0.820275045 	0.825525205 	0.830775366 	0.831525389 	0.833025434 	0.824275167 
- P4_PP1          	0.830775366 	0.830775366 	0.830775366 	0.833025434 	0.830775366 	0.825525205 
- P4_PP1          	0.820275045 	0.784023938 	0.784523953 	0.784023938 	0.778773778 	0.773523618 
- P4_PP1          	0.784273946 	0.77852377  	0.77852377  	0.784273946 	0.778773778 	0.783273915 
- P4_PP1          	0.784523953 	0.778773778 	0.77852377  	0.784273946 	0.789024091 	0.784773961 
- P4_PP1          	0.788774083 	0.784023938 	0.789024091 	0.794274251 	0.791524167 	0.789024091 
- P4_PP1          	0.794024244 	0.784273946 	0.784273946 	0.778773778 	0.784023938 	0.789274098 
- P4_PP1          	0.77852377  	0.785773992 	0.784023938 	0.784023938 	0.784273946 	0.784023938 
- P4_PP1          	0.820275045 	0.825525205 	0.830775366 	0.831525389 	0.833025434 	0.824275167 
- P4_PP1          	0.830775366 	0.830775366 	0.830775366 	0.833025434 	0.830775366 	0.825525205 
- P4_PP1          	0.820275045 	0.784023938 	0.784523953 	0.784023938 	0.778773778 	0.773523618 
- P4_PP1          	0.784273946 	0.77852377  	0.77852377  	0.784273946 	0.778773778 	0.783273915 
- P4_PP1          	0.784523953 	0.778773778 	0.77852377  	0.784273946 	0.789024091 	0.784773961 
- P4_PP1          	0.788774083 	0.784023938 	0.789024091 	0.794274251 	0.791524167 	0.789024091 
- P4_PP1          	0.794024244 	0.784273946 	0.784273946 	0.778773778 	0.784023938 	0.789274098 
- P4_PP1          	0.77852377  	0.785773992 	0.784023938 	0.784023938 	0.784273946 	0.784023938 
- P4_PP1          	0.820275045 	0.825525205 	0.830775366 	0.831525389 	0.833025434 	0.824275167 
- P4_PP1          	0.830775366 	0.830775366 	0.830775366 	0.833025434 	0.830775366 	0.825525205 
- P4_PP1          	0.820275045 	0.784023938 	0.784523953 	0.784023938 	0.778773778 	0.773523618 
- P4_PP1          	0.784273946 	0.77852377  	0.77852377  	0.784273946 	0.778773778 	0.783273915 
- P4_PP1          	0.784523953 	0.778773778 	0.77852377  	0.784273946 	0.789024091 	0.784773961 
- P4_PP1          	0.788774083 	0.784023938 	0.789024091 	0.794274251 	0.791524167 	0.789024091 
- P4_PP1          	0.794024244 	0.784273946 	0.784273946 	0.778773778 	0.784023938 	0.789274098 
- P4_PP1          	0.77852377  	0.785773992 	0.784023938 	0.784023938 	0.784273946 	0.784023938 
+ P_P1            	0.820275045 	0.825525205 	0.830775366 	0.831525389 	0.833025434 	0.824275167 
+ P_P1            	0.830775366 	0.830775366 	0.830775366 	0.833025434 	0.830775366 	0.825525205 
+ P_P1            	0.820275045 	0.784023938 	0.784523953 	0.784023938 	0.778773778 	0.773523618 
+ P_P1            	0.784273946 	0.77852377  	0.77852377  	0.784273946 	0.778773778 	0.783273915 
+ P_P1            	0.784523953 	0.778773778 	0.77852377  	0.784273946 	0.789024091 	0.784773961 
+ P_P1            	0.788774083 	0.784023938 	0.789024091 	0.794274251 	0.791524167 	0.789024091 
+ P_P1            	0.794024244 	0.784273946 	0.784273946 	0.778773778 	0.784023938 	0.789274098 
+ P_P1            	0.77852377  	0.785773992 	0.784023938 	0.784023938 	0.784273946 	0.784023938 
+ P_P1            	0.820275045 	0.825525205 	0.830775366 	0.831525389 	0.833025434 	0.824275167 
+ P_P1            	0.830775366 	0.830775366 	0.830775366 	0.833025434 	0.830775366 	0.825525205 
+ P_P1            	0.820275045 	0.784023938 	0.784523953 	0.784023938 	0.778773778 	0.773523618 
+ P_P1            	0.784273946 	0.77852377  	0.77852377  	0.784273946 	0.778773778 	0.783273915 
+ P_P1            	0.784523953 	0.778773778 	0.77852377  	0.784273946 	0.789024091 	0.784773961 
+ P_P1            	0.788774083 	0.784023938 	0.789024091 	0.794274251 	0.791524167 	0.789024091 
+ P_P1            	0.794024244 	0.784273946 	0.784273946 	0.778773778 	0.784023938 	0.789274098 
+ P_P1            	0.77852377  	0.785773992 	0.784023938 	0.784023938 	0.784273946 	0.784023938 
+ P_P1            	0.820275045 	0.825525205 	0.830775366 	0.831525389 	0.833025434 	0.824275167 
+ P_P1            	0.830775366 	0.830775366 	0.830775366 	0.833025434 	0.830775366 	0.825525205 
+ P_P1            	0.820275045 	0.784023938 	0.784523953 	0.784023938 	0.778773778 	0.773523618 
+ P_P1            	0.784273946 	0.77852377  	0.77852377  	0.784273946 	0.778773778 	0.783273915 
+ P_P1            	0.784523953 	0.778773778 	0.77852377  	0.784273946 	0.789024091 	0.784773961 
+ P_P1            	0.788774083 	0.784023938 	0.789024091 	0.794274251 	0.791524167 	0.789024091 
+ P_P1            	0.794024244 	0.784273946 	0.784273946 	0.778773778 	0.784023938 	0.789274098 
+ P_P1            	0.77852377  	0.785773992 	0.784023938 	0.784023938 	0.784273946 	0.784023938 
 ;
  RUMIAzREDA-pob  	5233.33     	5366.67     	7600.00     	4700.00     	5566.67     	5933.33     
  RUMIAzREDA-pob  	5300.00     	6266.67     	5933.33     	7233.33     	4666.67     	6066.67     
@@ -2380,93 +2372,93 @@
 
 [CURVES]
 ;ID              	X-Value     	Y-Value
-;PUMP: PUMP:             typ 65 PJM-200; moc 11 kW
+;PUMP: PUMP: PUMP:             typ 65 PJM-200; moc 11 kW
  SZAFRANOWA      	700         	42          
-;PUMP: PUMP:             typ 50 WR 40;  moc 4,0 kW
+;PUMP: PUMP: PUMP:             typ 50 WR 40;  moc 4,0 kW
  SPCV_BUKI       	700         	38          
-;PUMP: PUMP:             typ 65PJM R215;  moc 11 kW
+;PUMP: PUMP: PUMP:             typ 65PJM R215;  moc 11 kW
  PIOLUNOWA_Z1i2  	700         	60          
-;PUMP: PUMP:             typ 80PJM R200;  moc 15 kW
+;PUMP: PUMP: PUMP:             typ 80PJM R200;  moc 15 kW
  PIOLUNOWA_Z3    	1050        	48          
-;PUMP: PUMP:             typ 80 PJM-180; moc 11 kW
+;PUMP: PUMP: PUMP:             typ 80 PJM-180; moc 11 kW
  WIELKOPOLSKA    	1250        	42          
-;PUMP: PUMP:             
+;PUMP: PUMP: PUMP:             
  zastepcza       	3000        	160         
-;PUMP: PUMP:             typ 100 PJM 230; moc 37 kW
+;PUMP: PUMP: PUMP:             typ 100 PJM 230; moc 37 kW
  PLATYNOWA_Z1    	2500        	58          
-;PUMP: PUMP:             typ 80 PJM 230; moc 22 kW
+;PUMP: PUMP: PUMP:             typ 80 PJM 230; moc 22 kW
  PLATYNOWA_Z2    	1500        	67          
-;PUMP: PUMP:             typ 65 PJM 222; moc 15 kW
+;PUMP: PUMP: PUMP:             typ 65 PJM 222; moc 15 kW
  PLATYNOWA_Z3    	4           	800         
-;PUMP: PUMP:             typ 100WR30-2; moc 15 kW
+;PUMP: PUMP: PUMP:             typ 100WR30-2; moc 15 kW
  OBLUZE_Z1-6     	1416.7      	35          
-;PUMP: PUMP:             typ 30B50; moc 250 kW
+;PUMP: PUMP: PUMP:             typ 30B50; moc 250 kW
  P1_Z1           	2           	16000       
-;PUMP: PUMP:             typ 250-LNN-375; 200 kW bylo 21750
+;PUMP: PUMP: PUMP:             typ 250-LNN-375; 200 kW bylo 21750
  P1_Z3           	16000       	67          
-;PUMP: PUMP:             typ 50 WR 50; moc 5,5 kW
+;PUMP: PUMP: PUMP:             typ 50 WR 50; moc 5,5 kW
  CHWARZNIENSKA   	333         	55          
-;PUMP: PUMP:             typ 65PJM-180; moc 7,5 kW
+;PUMP: PUMP: PUMP:             typ 65PJM-180; moc 7,5 kW
  ZAMEK_Z1        	400         	42          
-;PUMP: PUMP:             typ 65PJM-120; moc 8,5 kW
+;PUMP: PUMP: PUMP:             typ 65PJM-120; moc 8,5 kW
  ZAMEK_Z2        	500         	52          
-;PUMP: PUMP:             typ PJM 200; moc 15 kW
+;PUMP: PUMP: PUMP:             typ PJM 200; moc 15 kW
  ZELAZNA_Z1i2    	1000        	50          
-;PUMP: PUMP:             
+;PUMP: PUMP: PUMP:             
  MALINOWA        	650         	62          
-;PUMP: PUMP:             
+;PUMP: PUMP: PUMP:             
  GSM4            	1000        	61          
-;PUMP: PUMP:             typ ICL;  moc 2,2 kW
+;PUMP: PUMP: PUMP:             typ ICL;  moc 2,2 kW
  SKARBKA_Z1      	333         	30          
-;PUMP: PUMP:             typ ICL; moc 7,5 kW
+;PUMP: PUMP: PUMP:             typ ICL; moc 7,5 kW
  SKARBKA_Z4      	600         	30          
-;PUMP: PUMP:             typ CR 45-2; moc 7,5 kW
+;PUMP: PUMP: PUMP:             typ CR 45-2; moc 7,5 kW
  KARTUSKA        	750         	38          
-;PUMP: PUMP:             typ ZHWR 100.40.4; moc 11
+;PUMP: PUMP: PUMP:             typ ZHWR 100.40.4; moc 11
  REDLOWO_Z1      	1916.67     	49          
-;PUMP: PUMP:             typ ZHWR 100.60.4; moc 15 kW
+;PUMP: PUMP: PUMP:             typ ZHWR 100.60.4; moc 15 kW
  REDLOWO_Z4      	2333.3      	75          
-;PUMP: PUMP:             wstepna
+;PUMP: PUMP: PUMP:             wstepna
  REDAII          	15000       	40          
-;PUMP: PUMP:             
+;PUMP: PUMP: PUMP:             
  DEMBINSKIEGO    	500         	64          
-;PUMP: PUMP:             typ ? ; moc 5,5 kW
+;PUMP: PUMP: PUMP:             typ ? ; moc 5,5 kW
  PCK_Z1          	2           	600         
-;PUMP: PUMP:             typ ?; moc 15 kW
+;PUMP: PUMP: PUMP:             typ ?; moc 15 kW
  PCK_Z3          	1250        	44          
-;PUMP: PUMP:             typ CR 32; moc 7,5 kW
+;PUMP: PUMP: PUMP:             typ CR 32; moc 7,5 kW
  NISKA           	1800        	59          
-;PUMP: PUMP:             typ 30B50;
+;PUMP: PUMP: PUMP:             typ 30B50;
  REDA_P1         	15836       	67          
-;PUMP: PUMP:             typ 25B50
+;PUMP: PUMP: PUMP:             typ 25B50
  REDA_P4         	14166.7     	72          
-;PUMP: PUMP:             typ 200 AM/3
+;PUMP: PUMP: PUMP:             typ 200 AM/3
  RUMIA_P1        	2           	3           
-;PUMP: PUMP:             typ GC.6.06; Silnik SM.8.37
+;PUMP: PUMP: PUMP:             typ GC.6.06; Silnik SM.8.37
  WlkKack-1/4a    	1500        	103         
-;PUMP: PUMP:             typ GC6-03; moc 17,6 kW
+;PUMP: PUMP: PUMP:             typ GC6-03; moc 17,6 kW
  SIERADZKA_P1    	1500        	50          
-;PUMP: PUMP:             typ GC5-B4; moc 9,6 kW
+;PUMP: PUMP: PUMP:             typ GC5-B4; moc 9,6 kW
  SIERADZKA_P3    	833.33      	49          
-;PUMP: PUMP:             typ GDA2-02; moc 30 kW
+;PUMP: PUMP: PUMP:             typ GDA2-02; moc 30 kW
  KOLIBKI_P1      	3           	2333        
-;PUMP: PUMP:             typ GC6-8; moc  47 kW
+;PUMP: PUMP: PUMP:             typ GC6-8; moc  47 kW
  KOLIBKI_P2      	1500        	136         
-;PUMP: PUMP:             
+;PUMP: PUMP: PUMP:             
  1               	2333.33     	58          
-;PUMP: PUMP:             typ ETANORM-M 100-160 M11; moc 30 kW
+;PUMP: PUMP: PUMP:             typ ETANORM-M 100-160 M11; moc 30 kW
  WICZLINO_KB     	4166.67     	25          
-;PUMP: PUMP:             typ Etablok MN-40-200; moc 11 kW
+;PUMP: PUMP: PUMP:             typ Etablok MN-40-200; moc 11 kW
  WICZLINO_W_P1   	2           	416.67      
-;PUMP: PUMP:             typ Etanorm N 50-200; moc 22 kW
+;PUMP: PUMP: PUMP:             typ Etanorm N 50-200; moc 22 kW
  WICZLINO_W_P3   	1333.33     	59          
-;PUMP: PUMP:             typ GDA2.031.2; Silnik SM8 Karelma, Moc 55kW, 2900 obr/min
+;PUMP: PUMP: PUMP:             typ GDA2.031.2; Silnik SM8 Karelma, Moc 55kW, 2900 obr/min
  WITOMINO_POMP   	3166.67     	71          
-;PUMP: PUMP:             typ GC6-05; Silnik SM8 37kW
+;PUMP: PUMP: PUMP:             typ GC6-05; Silnik SM8 37kW
  WielkiKack-6    	1500        	85          
-;PUMP: PUMP:             GC5-10; Silnik SGMd 37kW
+;PUMP: PUMP: PUMP:             GC5-10; Silnik SGMd 37kW
  WielkiKack-T1   	833.33      	151         
-;PUMP: PUMP:             bylo q=2200
+;PUMP: PUMP: PUMP:             bylo q=2200
  nasza_zastepcza 	1500        	137         
 
 [CONTROLS]
@@ -2488,7 +2480,9 @@
 
 
 
+
 [RULES]
+
 
 
 
@@ -2716,10 +2710,6 @@ owocowe-pob     	14431.390         	14424.290
 pom_pob         	19067.740         	10640.010         
 1               	7802.980          	17512.030         
 M26_4           	20535.680         	7366.050          
-2               	18872.850         	6459.700          
-3               	16243.080         	11421.300         
-4               	14291.640         	11316.910         
-5               	14764.570         	12450.160         
 UW_SIERADZKA    	18146.380         	6995.690          
 K4_Kolibki      	20310.920         	6093.450          
 UW_REDAII       	9722.980          	19504.620         
@@ -2940,11 +2930,11 @@ R131_1          	20126.180         	7262.360
 M82_ZurPC_1     	13414.060         	12904.720         
 M82_ZurPC_1     	13422.050         	12931.480         
 M82_ZurPC_1     	13374.580         	12934.900         
-P1_Sieradzka    	18146.840         	6998.370          
-P1_Sieradzka    	18149.930         	6998.530          
+P1_SIERADZKA    	18146.840         	6998.370          
+P1_SIERADZKA    	18149.930         	6998.530          
 234             	20061.250         	8563.330          
-P4_PP1          	12225.990         	14255.790         
-P4_PP1          	12235.450         	14254.650         
+P_P1            	12225.990         	14255.790         
+P_P1            	12235.450         	14254.650         
 SUW_REDA        	9476.790          	19460.710         
 SUW_REDA        	9419.110          	19253.580         
 

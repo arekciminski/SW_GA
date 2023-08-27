@@ -60,6 +60,7 @@ class GA_function:
                 for j in range(ga_par.number['float_genes']):
                     temp_float_specimen.append((high_float_val - low_float_val) * random.random() + low_float_val)
                 specimen[2] = temp_float_specimen
+
             self.pop['pop'].append(specimen)
 
     def penalty_function_tank_final_state(self, epa):
@@ -80,14 +81,14 @@ class GA_function:
 
         pressure_penalty = 0
 
-        for j in range(epa.sw_parameters.number['hydraulic_steps']):
+        for t in range(epa.sw_parameters.number['hydraulic_steps']):
             for i in range(len(epa.sw_parameters.mes['nodes_names']) - len(epa.sw_parameters.tanks['names'])):
-                cross_values = -epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][j] + \
+                cross_values = -epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t] + \
                                epa.sw_parameters.level['min_pressure'][i]
                 if cross_values > 0:
                     pressure_penalty += (10*abs(cross_values))**2
 
-                cross_values = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][j] - \
+                cross_values = epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t] - \
                                epa.sw_parameters.level['max_pressure'][i]
                 if cross_values > 0:
                     pressure_penalty += (10*abs(cross_values))**2
@@ -181,7 +182,7 @@ class GA_function:
                 if epa.data['flow_output_' + name][0][j] <= 0 :
                     k += 1
             if error_values[j] > 0:
-                error_values[j] = error_values[j] #** k
+                error_values[j] = error_values[j] ** k
 
         return sum(error_values)
 
@@ -244,8 +245,7 @@ class GA_function:
                 if ga_par.number['float_genes'] > 0:
                     if random.random() < ga_par.mutation['percent_probability']/100:
 
-                       num_genes = int(
-                           ga_par.number['float_genes'] * ga_par.mutation['percent_genes'] / 100)
+                       num_genes = int(ga_par.number['float_genes'] * ga_par.mutation['percent_genes'] / 100)
 
                        genes_position = []
                        for j in range(num_genes):
@@ -275,9 +275,25 @@ class GA_function:
                         if error_value == 4:
                             for k in range(sw_par.number['pumps']):
                                 flow_pump = species[6][k][t]
-                                if flow_pump < 0.1:
+                                if flow_pump < 0:
                                     species[2][t + k * number_hydraulic_steps] += random.random() * \
-                                                                    ga_par.specialize_operators['error_delta_value']
+                                                                ga_par.specialize_operators['error_delta_value']
+
+                        if error_value == 1:
+                            for name in sw_par.mes['nodes_names']:
+                                if name == '316' or name== '37':
+                                    species[2][t + 2 * number_hydraulic_steps] += random.random() * \
+                                                                ga_par.specialize_operators['error_delta_value']
+
+                                if name == 'R1308_1' or name == 'M28_1':
+                                    species[2][t + number_hydraulic_steps] += random.random() * \
+                                                                ga_par.specialize_operators['error_delta_value']
+                                    species[2][t] += random.random() * \
+                                                                ga_par.specialize_operators['error_delta_value']
+
+                                if name == 'M54_4':
+                                    species[2][t + 3*number_hydraulic_steps] += random.random() * \
+                                                                ga_par.specialize_operators['error_delta_value']
 
                         species[8] = 1
 
@@ -315,7 +331,7 @@ class GA_function:
                                     species[2][t + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
-                            if k ==4 or k == 5 or k == 6 or k == 11 or k == 12 or k == 13:
+                            if k ==4 or k == 11 or k == 6 or k == 13:# or k == 12 or k == 13:
                                 if delta_min_pressure < 0:
                                     species[2][t + 2*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
@@ -323,7 +339,7 @@ class GA_function:
                                     species[2][t + 2*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
                                         'pressure_delta_value']
 
-                            if k == 7 or k == 9 or k == 10:
+                            if k == 7 or k == 10:# or k == 9:
                                 if delta_min_pressure < 0:
                                     species[2][t + number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
                                     'pressure_delta_value']
@@ -352,7 +368,7 @@ class GA_function:
                                         'pressure_delta_value']
 
                              #Zbiorniki
-                            if k == 15 or k==16 or k== 17:
+                            if k == 18:# or k==16 or k== 17:
                                 if delta_min_pressure < 0:
 
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
@@ -370,16 +386,22 @@ class GA_function:
                                                          ga_par.specialize_operators['pressure_delta_value']
                                         species[2][t - jj + 2*number_hydraulic_steps] -= random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
-                            if k == 18:
+
+                            if k == 15:
                                 if delta_min_pressure < 0:
 
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
-                                        species[2][t - jj + 3*number_hydraulic_steps] += random.random() * \
+                                        species[2][t - jj + 3*number_hydraulic_steps - 1] += random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
+                                        species[2][t - jj + 2 * number_hydraulic_steps - 1 ] -= random.random() * \
+                                                          ga_par.specialize_operators['pressure_delta_value']
                                 if delta_max_pressure < 0:
                                     for jj in range(1, ga_par.specialize_operators['bound_tank_level_horizon']+1):
-                                        species[2][t - jj + 3*number_hydraulic_steps] -= random.random() * \
+                                        species[2][t - jj + 3*number_hydraulic_steps - 1] -= random.random() * \
                                                          ga_par.specialize_operators['pressure_delta_value']
+                                        species[2][t - jj + 2 * number_hydraulic_steps - 1] += random.random() * \
+                                                         ga_par.specialize_operators['pressure_delta_value']
+
                             species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
@@ -391,23 +413,23 @@ class GA_function:
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
                 if ga_par.number['float_genes'] > 0:# and species[8] == 0:
-                    for j in range(number_hydraulic_steps-1):
+                    for t in range(number_hydraulic_steps-1):
                         kk = 0
                         for k in sw_par.mes_pressure_index['pump']:
 
                             max_delta_pump_pressure = ga_par.specialize_operators['max_delta_pump_pressure']
 
-                            delta_pump_pressure = species[4][k][j] - species[4][k][j+1]
+                            delta_pump_pressure = species[4][k][t] - species[4][k][t+1]
 
                             if delta_pump_pressure < - max_delta_pump_pressure:
-                                species[2][j + k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                species[2][t + k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
                                                                     'pressure_delta_value']
-                                species[2][j+1 + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                species[2][t+1 + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
                                                                     'pressure_delta_value']
                             if delta_pump_pressure > max_delta_pump_pressure:
-                                species[2][j + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
+                                species[2][t + k*number_hydraulic_steps] -= random.random() * ga_par.specialize_operators[
                                                                     'pressure_delta_value']
-                                species[2][j +1+ k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
+                                species[2][t +1+ k*number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
                                                                     'pressure_delta_value']
 
                             species[8] = 1
@@ -420,7 +442,7 @@ class GA_function:
         for i in range(len(self.specimen)):
             if random.random() < ga_par.mutation['percent_probability'] / 100:
                 species = copy.deepcopy(self.specimen[i])
-                if ga_par.number['float_genes'] > 0:#  and species[8] == 0:
+                if ga_par.number['float_genes'] > 0:# and species[8] == 0:
 
                     for k in range(len(sw_par.tanks['names'])):
 
@@ -428,7 +450,7 @@ class GA_function:
                         end_level = species[5][k][-1]
                         if end_level - init_level > ga_par.specialize_operators['delta_initial_end_tank_level']:
 
-                            if k==0 or k==1 or k ==2:
+                            if k == 1 or k== 2 or k == 3:
 
                                 for t in range(number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
                                                number_hydraulic_steps):
@@ -441,24 +463,26 @@ class GA_function:
                                                                               ga_par.specialize_operators[
                                                                                   'pressure_delta_value']
 
-                            if k == 3:
+                            if k == 0:
 
-                                for t in range(
-                                        number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
-                                        number_hydraulic_steps):
+                                for t in range(number_hydraulic_steps -\
+                                               ga_par.specialize_operators['end_tank_level_horizon'], number_hydraulic_steps):
                                     species[2][t + 3 * number_hydraulic_steps] -= random.random() * \
                                                                                   ga_par.specialize_operators[
                                                                                       'pressure_delta_value']
 
+                                    species[2][t + 2 * number_hydraulic_steps] += random.random() * \
+                                                                                  ga_par.specialize_operators[
+                                                                                      'pressure_delta_value']
+
                         if end_level - init_level < - ga_par.specialize_operators['delta_initial_end_tank_level']:
-                            if k==0 or k==1 or k ==2:
+                            if k==1 or k==2 or k ==3:
                                 for k in range(number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
                                                number_hydraulic_steps):
 
                                     for t in range(
                                             number_hydraulic_steps - ga_par.specialize_operators[
-                                                'end_tank_level_horizon'],
-                                            number_hydraulic_steps):
+                                                'end_tank_level_horizon'], number_hydraulic_steps):
 
                                         species[2][t] += random.random() * ga_par.specialize_operators[
                                             'pressure_delta_value']
@@ -468,12 +492,16 @@ class GA_function:
                                         species[2][t + 2 * number_hydraulic_steps] += random.random() * \
                                                                                       ga_par.specialize_operators[
                                                                                           'pressure_delta_value']
-                            if k == 3:
+                            if k == 0:
 
                                 for t in range(
                                         number_hydraulic_steps - ga_par.specialize_operators['end_tank_level_horizon'],
                                         number_hydraulic_steps):
                                     species[2][t + 3 * number_hydraulic_steps] += random.random() * \
+                                                                                  ga_par.specialize_operators[
+                                                                                      'pressure_delta_value']
+
+                                    species[2][t + 2 * number_hydraulic_steps] -= random.random() * \
                                                                                   ga_par.specialize_operators[
                                                                                       'pressure_delta_value']
                         species[8] = 1
@@ -519,12 +547,12 @@ class GA_function:
                     for k in range(sw_par.number['pumps']):
                         for t in range(number_hydraulic_steps):
                                 if sw_par.energy_taryf[t] == sw_par.lc:
-                                    species[2][t + k* number_hydraulic_steps] += random.random() * ga_par.specialize_operators[
-                                        'energy_delta_value']
+                                    species[2][t + k* number_hydraulic_steps] += random.random() *\
+                                                    ga_par.specialize_operators['energy_delta_value']
 
                                 if sw_par.energy_taryf[t] == sw_par.hc:
-                                    species[2][t + k* number_hydraulic_steps ] -= random.random() * ga_par.specialize_operators[
-                                        'energy_delta_value']
+                                    species[2][t + k* number_hydraulic_steps ] -= random.random() *\
+                                                    ga_par.specialize_operators['energy_delta_value']
                 species[8] = 1
 
                 self.pop['mate_mut'].append(self.set_specimen_bound(species))
@@ -543,7 +571,6 @@ class GA_function:
         return species
 
     def ga_crossover(self):
-
 
         temp_cross = copy.deepcopy(self.pop['pop'])
 
@@ -586,46 +613,64 @@ class GA_function:
                     self.pop['mate_cros'].append(specimen_0)
                     self.pop['mate_cros'].append(specimen_1)
 
-
         if ga_par.crossover['type'] == 'two_points':
             for i in range(ga_par.number['specimen']):
                 if random.random() < ga_par.crossover['percent_probability'] / 100:
 
-                    specimen_to_mutation = [random.randint(0, len(temp_cross)-1)]
-                    specimen_to_mutation.append(random.randint(0, len(temp_cross)-1))
+                    specimen_to_crrossover = [random.randint(1, len(temp_cross)-1)]
+                    specimen_to_crrossover.append(random.randint(1, len(temp_cross)-1))
 
-                    specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_mutation[0]]))
-                    specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_mutation[1]]))
+                    specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_crrossover[0]]))
+                    specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_crrossover[1]]))
 
                     if ga_par.number['int_genes'] > 0:
                         cros_position = random.randint(1, ga_par.number['int_genes'])
 
-                        first_species_first_part = specimen_0[1][:cros_position[0]]
-                        first_species_middle_part = specimen_0[1][cros_position[0]:cros_position[1]]
-                        first_species_last_part = specimen_0[1][cros_position[1]:]
-                        second_species_first_part = specimen_0[1][:cros_position[0]]
-                        second_species_middle_part = specimen_0[1][cros_position[0]:cros_position[1]]
-                        second_species_last_part = specimen_0[1][cros_position[1]:]
+                        first_species_first_half = specimen_0[1][:cros_position[0]]
+                        first_species_second_half = specimen_0[1][cros_position[0]:]
+                        second_species_first_half = specimen_1[1][:cros_position[0]]
+                        second_species_second_half = specimen_1[1][cros_position[0]:]
 
-                        specimen_0[1] = first_species_first_part + second_species_middle_part + first_species_last_part
-                        specimen_1[1] = second_species_first_part + first_species_middle_part + second_species_last_part
+                        specimen_0[1] = second_species_first_half + first_species_second_half
+                        specimen_1[1] = first_species_first_half + second_species_second_half
 
                     if ga_par.number['float_genes'] > 0:
-                        cros_position_1 = random.randint(1, ga_par.number['float_genes'])
-                        cros_position_2 = random.randint(cros_position_1, ga_par.number['float_genes'])
+                        cros_position = [random.randint(1, ga_par.number['float_genes'])]
 
-                        first_species_first_part = specimen_0[1][:cros_position_1]
-                        first_species_middle_part = specimen_0[1][cros_position_1:cros_position_2]
-                        first_species_last_part = specimen_0[1][cros_position_2:]
-                        second_species_first_part = specimen_0[1][:cros_position_1]
-                        second_species_middle_part = specimen_0[1][cros_position_1:cros_position_2]
-                        second_species_last_part = specimen_0[1][cros_position_2:]
+                        first_species_first_half = specimen_0[2][:cros_position[0]]
+                        first_species_second_half = specimen_0[2][cros_position[0]:]
+                        second_species_first_half = specimen_1[2][:cros_position[0]]
+                        second_species_second_half = specimen_1[2][cros_position[0]:]
 
-                        specimen_0[1] = first_species_first_part + second_species_middle_part + first_species_last_part
-                        specimen_1[1] = second_species_first_part + first_species_middle_part + second_species_last_part
+                        specimen_0[2] = second_species_first_half + first_species_second_half
+                        specimen_1[2] = first_species_first_half + second_species_second_half
 
                     self.pop['mate_cros'].append(specimen_0)
                     self.pop['mate_cros'].append(specimen_1)
+
+
+        if ga_par.crossover['type'] == 'intermediate':
+            for i in range(ga_par.number['specimen']):
+                specimen_to_mutation = [random.randint(0, len(temp_cross)-1)]
+                specimen_to_mutation.append(random.randint(0, len(temp_cross)-1))
+
+                specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_mutation[0]]))
+                specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_mutation[1]]))
+
+                if ga_par.number['float_genes'] > 0:
+                    d_par = ga_par.crossover['inremediate_d_par']
+
+                    for j in range(ga_par.number['float_genes']):
+                        if random.random() < ga_par.crossover['percent_probability'] / 100:
+                            beta_coefficient = random.uniform(- d_par, 1 + d_par)
+
+                            specimen_0[2][j] = specimen_0[2][j] * beta_coefficient +\
+                                               specimen_1[2][j] * (1 + beta_coefficient)
+                            specimen_1[2][j] = specimen_0[2][j] * (1 + beta_coefficient) +\
+                                               specimen_1[2][j] * beta_coefficient
+
+                self.pop['mate_cros'].append(specimen_0)
+                self.pop['mate_cros'].append(specimen_1)
 
         return 1
 
@@ -794,7 +839,7 @@ class GA_function:
             mes_name = 'nodes'
             name = 'pressure'
             ylabel = 'Pressure [m]'
-        if type ==5:
+        if type == 5:
             mes_name = 'tank'
             name = 'tank'
             ylabel = 'Level [m]'
@@ -825,13 +870,46 @@ class GA_function:
             else:
                 names += sw_par.mes[mes_name +'_names'][which[i]]
 
-        #self.ax[axis[0], axis[1]].set_title(name + ' at '+ names,
-        #                                    fontsize = 8)
+        #self.ax[axis[0], axis[1]].set_title(name + ' at '+ names, fontsize = 8)
         self.ax[axis[0], axis[1]].xaxis.set_tick_params(labelsize=8)
         self.ax[axis[0], axis[1]].yaxis.set_tick_params(labelsize=6)
 
-        self.ax[axis[0], axis[1]].legend(loc = location, fontsize='8',
-                                         labels = labels)
+        self.ax[axis[0], axis[1]].legend(loc = location, fontsize='8', labels = labels)
+
+    def ga_plot_pump_speed(self, axis, type, which, location):
+        x = np.arange(0, sw_par.time['duration_h'])
+
+        upper_bound = [ga_par.pop['float_range_high']]*sw_par.time['duration_h']
+        lower_bound = [ga_par.pop['float_range_low']]*sw_par.time['duration_h']
+        self.ax[axis[0], axis[1]].clear()
+        color = ['b','m','g','k']
+        x1=[x]
+        for i in range(len(which)):
+            y = self.pop['last_best_solution'][type][which[i]*sw_par.time['duration_h']: \
+                                                     (which[i]+1) * sw_par.time['duration_h']]
+            self.ax[axis[0], axis[1]].bar(x1[i], y, color=color[i], linewidth=1, width = 0.5)
+            x1.append([x+0.25 for x in x1[i]])
+
+        #self.ax[axis[0], axis[1]].plot(x, lower_bound, color='r', linewidth=1)
+        #self.ax[axis[0], axis[1]].plot(x, upper_bound, color='r', linewidth=1)
+        self.ax[axis[0], axis[1]].set_ylabel('Pump_speed', fontsize=8)
+        self.ax[axis[0], axis[1]].set_xlabel("Time [h]", fontsize=8)
+
+
+        labels =[]
+        names =''
+        for i in range(len(which)):
+            labels.append(sw_par.pumps['names'][which[i]])
+            if i < len(which)-1:
+                names += sw_par.pumps['names'][which[i]]
+            else:
+                names += sw_par.pumps['names'][which[i]]
+
+        #self.ax[axis[0], axis[1]].set_title('Pump speed at ' + names, fontsize = 10)
+        self.ax[axis[0], axis[1]].xaxis.set_tick_params(labelsize=8)
+        self.ax[axis[0], axis[1]].yaxis.set_tick_params(labelsize=6)
+
+        self.ax[axis[0], axis[1]].legend(loc = location, fontsize='8', labels = labels)
 
     def ga_init_plot(self):
         self.plt.ion()
@@ -841,25 +919,32 @@ class GA_function:
         self.plot['x'] = range(len(self.plot['best_sol']))
         figure, ax = plt.subplots(nrows=3, ncols=6, figsize = (18,10))
         mngr = plt.get_current_fig_manager()
-        #mngr.window.geometry("+100+0")
+        mngr.window.geometry("+100+0")
         self.figure = figure
         self.ax = ax
 
     def plot_fitnes_values(self,place,i):
-        x =np.arange(0, i+1)
+        x = np.arange(0, i+1)
+        y = self.plot['best_sol']
+        y_mean = self.plot['mean_sol'][0]
 
-        self.ax[place[0], place[1]].plot(x, self.plot['best_sol'], label = 'Best specimen',
-                                         color = 'r', linewidth = 1)
-        self.ax[place[0], place[1]].plot(x, self.plot['mean_sol'][0], label = 'Mean of specimens',
-                                         color = 'g', linewidth = 1)
+        if i > ga_par.show['number_last_solutions']:
+
+            x = x[:-ga_par.show['number_last_solutions']]
+            y = y[:-ga_par.show['number_last_solutions']]
+            y_mean = y_mean[:-ga_par.show['number_last_solutions']]
+        print(x)
+        print(y)
+
+        self.ax[place[0], place[1]].plot(x, y, label = 'Best specimen', color = 'r', linewidth = 1)
+        self.ax[place[0], place[1]].plot(x, y_mean, label = 'Mean of specimens', color = 'g', linewidth = 1)
         self.ax[place[0], place[1]].set_title("Mean and best solution", fontsize='8')
         self.ax[place[0], place[1]].set_ylabel("Mean and best", fontsize='8')
         self.ax[place[0], place[1]].set_yscale('log')
         self.ax[place[0], place[1]].set_xlabel("Iteration", fontsize='8')
         self.ax[place[0], place[1]].xaxis.set_tick_params(labelsize=8)
         self.ax[place[0], place[1]].yaxis.set_tick_params(labelsize=6)
-        self.ax[place[0], place[1]].legend(loc="upper right", fontsize='8',
-                                         labels = ['Best value', 'Mean_value'])
+        self.ax[place[0], place[1]].legend(loc="upper right", fontsize='8', labels = ['Best value', 'Mean_value'])
 
     def print_values_on_plot(self, epa):
         #Rectangle((20, 0), 50, 50, facecolor='red')
@@ -867,33 +952,36 @@ class GA_function:
         i = 0
         for er in epa['pop'][0][3]:
             if er > 0:
-                error += str(i) +'/'+ str(er)+', '
+                error += str(i) + '/' + str(er)+', '
             i += 1
-        self.figure.text(0.01, 0.95, ' ' * 800, fontsize=12, bbox=dict(facecolor='white', edgecolor='white'))
-        self.figure.text(0.01, 0.95, self.print_stats, fontsize=12, bbox ={'facecolor':'white'})
-        self.figure.text(0.01, 0.92, ' '*100, fontsize=12, bbox=dict(facecolor= 'white', edgecolor = 'white'))
-        self.figure.text(0.01, 0.92, error, fontsize=12, bbox={'facecolor': 'white'})
+        self.figure.text(0.01, 0.95, '  ' * 800, fontsize=12, bbox=dict(facecolor='white', edgecolor='white'))
+        self.figure.text(0.01, 0.95, self.print_stats, fontsize=12, bbox ={'facecolor':'white', 'edgecolor' :'white'})
+        self.figure.text(0.01, 0.92, ' '*800, fontsize=12, bbox=dict(facecolor= 'white', edgecolor = 'white'))
+        self.figure.text(0.01, 0.92, error, fontsize=12, bbox={'facecolor': 'white', 'edgecolor' : 'white'})
 
     def ga_plot(self,i, epa):
 
         self.plot_fitnes_values([0,0],i)
-        self.plot_mes([0, 1], 4, [0],'upper right')
-        self.plot_mes([0, 2], 4, [1], 'upper right')
-        self.plot_mes([0, 3], 4, [2], 'upper right')
-        self.plot_mes([0, 4], 4, [3], 'upper right')
-        self.plot_mes([0, 5], 4, [4], 'upper right')
-        self.plot_mes([1, 0], 4, [5], 'upper right')
-        self.plot_mes([1, 1], 4, [6], 'upper right')
-        self.plot_mes([1, 2], 4, [7], 'upper right')
-        self.plot_mes([1, 3], 4, [8], 'upper right')
-        self.plot_mes([1, 4], 4, [9], 'upper right')
-        self.plot_mes([1, 5], 5, [0], 'upper right')
-        self.plot_mes([2, 0], 5, [1,2], 'upper right')
-        self.plot_mes([2, 2], 5, [3], 'upper right')
-        self.plot_mes([2, 3], 6, [0, 1, 3], 'upper right')
-        self.plot_mes([2, 4], 6, [4,5], 'upper right')
-        self.plot_mes([2, 5], 6, [5], 'upper right')
-        #self.plot_mes([1, 0], 2, [0], 'upper right')
+        self.plot_mes([0, 1], 4, [3, 2, 0],'lower right')
+        self.plot_mes([0, 2], 4, [1], 'lower right')
+        self.plot_mes([0, 3], 4, [4, 7], 'upper right')
+        self.plot_mes([0, 4], 4, [5], 'upper right')
+        self.plot_mes([0, 5], 4, [6], 'upper right')
+        self.plot_mes([1, 0], 4, [8,9], 'upper right')
+        self.plot_mes([1, 1], 4, [10], 'upper right')
+        self.plot_mes([1, 2], 4, [11], 'upper right')
+        self.plot_mes([1, 3], 4, [12], 'upper right')
+        self.plot_mes([1, 4], 4, [13], 'upper right')
+        self.plot_mes([1, 5], 4, [14], 'upper right')
+        #self.ga_plot_pump_speed([1, 5], 2, [0], 'lower right')
+        #self.ga_plot_pump_speed([1, 5], 2, [2, 3], 'lower right')
+        self.plot_mes([2, 0], 5, [0], 'upper right')
+        self.plot_mes([2, 1], 5, [1, 2, 3], 'upper right')
+        self.plot_mes([2, 2], 6, [0], 'lower right')
+        self.plot_mes([2, 3], 6, [1], 'lower right')
+        self.plot_mes([2, 4], 6, [2], 'lower right')
+        self.plot_mes([2, 5], 6, [3], 'lower right')
+
         self.print_values_on_plot(epa)
 
         self.save_figure()
