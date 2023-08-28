@@ -8,6 +8,7 @@ class sw_par:
     time = {'duration_h': 24,  # [h]
             'hydraulic_step_s': 1800}
     multiplication = int(3600/time['hydraulic_step_s'])
+
     time['duration_s'] = time['duration_h'] * 3600  # [s]
 
     lc = 0.84
@@ -56,6 +57,7 @@ class sw_par:
               'tanks' : len(tanks['names']),
               'hydraulic_steps':int(time['duration_h'] * 3600 / time['hydraulic_step_s'])
               }
+
     if len(mes['nodes_names']) != len(level['min_pressure']):
         Warning('Number of names and bounds are not the same')
 

@@ -70,15 +70,26 @@ class Epa:
             node_pattern_names.append(px)
         self.node_pattern_names = node_pattern_names
 
+    def get_pattern_count(self):
+        ret, npat = et.ENgetcount(et.EN_PATCOUNT)
+        self.number_of_patterns = npat
+
+    def get_patterns_names(self):
+        pattern_names = []
+        for i in range(1, self.number_of_patterns+1):
+            ret, px = et.ENgetpatternid(i)
+            pattern_names.append(px)
+        self.patterns_names = pattern_names
+
     def get_pattern_values(self):
-        pattern_value = []
-        self.demand_patterns_values = []
-        for pn in self.node_pattern_index:
-            ret, T = et.ENgetpatternlen(pn)
+        self.patterns_values = []
+        for i in range(1,self.number_of_patterns+1):
+            pattern_value = []
+            ret, T = et.ENgetpatternlen(i)
             for t in range(1,T+1):
-                ret, px = et.ENgetpatternvalue(pn,t)
+                ret, px = et.ENgetpatternvalue(i,t)
                 pattern_value.append(px)
-            self.demand_patterns_values.append(pattern_value)
+            self.patterns_values.append(pattern_value)
 
     def set_time_duration(self):
         et.ENsettimeparam(0, self.sw_parameters.time['duration_s'])
@@ -92,10 +103,14 @@ class Epa:
             for t in range(self.sw_parameters.number['hydraulic_steps']):
                  et.ENsetpatternvalue(self.pumps_pattern_index[i], t + 1, species[i*\
                                                                         self.sw_parameters.number['hydraulic_steps'] + t])
-        for i in range(len(self.node_pattern_index)):
+        for i in range(self.number_of_patterns):
+            if i not in self.pumps_pattern_index:
+                for t in range(self.sw_parameters.number['hydraulic_steps']):
+                    et.ENsetpatternvalue(i+1, t + 1, self.patterns_values[i][t + move_time])
+
+        for i in range(len(self.pumps_pattern_index)):
             for t in range(self.sw_parameters.number['hydraulic_steps']):
-                et.ENsetpatternvalue(self.node_pattern_index[i], t + 1,
-                                     self.demand_patterns_values[i][t + move_time])
+                et.ENsetpatternvalue(i + 1, t + 1, species[i*self.sw_parameters.number['hydraulic_steps']+ t])
 
     def save_temp_file(self):
         self.set_time_duration()
@@ -105,6 +120,7 @@ class Epa:
     def get_set_parameters(self):
         self.get_link_index()
         self.get_node_index()
+        self.get_pattern_count()
         self.get_pattern_index()
         self.set_time_duration()
 
@@ -208,11 +224,21 @@ class Epa:
         self.set_pattern_values(species,0)
         self.save_temp_file()
 
+    def correct_error(self, error, pressure):
+
+        for i in range(len(pressure)):
+            for t in range(sw_par.number['hydraulic_steps']):
+                if pressure[i][t] < 0 and error[i] == 0:
+                    error[i] = 1
+
+        return error, pressure
+
     def get_data(self,species, move_time):
 
         self.prepare_empty_dict_to_comput()
 
         self.open_epanet()
+
         self.set_time_duration()
 
         self.set_tank_inital()
@@ -220,6 +246,8 @@ class Epa:
         self.set_pattern_values(species, move_time)
 
         [flow, energy, pressure, error, time] = self.get_hydraulic_values()
+
+        [error, pressure] = self.correct_error(error, pressure)
 
         self.insert_data(pressure, flow, energy, error, time)
 

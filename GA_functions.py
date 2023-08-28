@@ -9,6 +9,8 @@ from GA_Parameters import ga_par
 
 import time
 
+import os
+
 from  multiprocessing import Pool
 
 import matplotlib.pyplot as plt
@@ -29,7 +31,9 @@ class GA_function:
         self.ep.get_node_pattern()
         self.ep.get_node_pattern_names()
         self.ep.get_pumps_pattern_index()
+        self.ep.get_pattern_count()
         self.ep.get_pattern_values()
+        self.ep.get_patterns_names()
         self.ep.close_epanet()
 
     def ga_initialization(self):
@@ -92,6 +96,10 @@ class GA_function:
                                epa.sw_parameters.level['max_pressure'][i]
                 if cross_values > 0:
                     pressure_penalty += (10*abs(cross_values))**2
+
+                if epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t]<0:
+                    cross_values = abs(epa.data['pressure_output_' + epa.sw_parameters.mes['nodes_names'][i]][0][t])
+                    pressure_penalty += (100*abs(cross_values))**2
 
         return pressure_penalty
 
@@ -610,44 +618,48 @@ class GA_function:
                         specimen_0[2] = second_species_first_half + first_species_second_half
                         specimen_1[2] = first_species_first_half + second_species_second_half
 
-                    self.pop['mate_cros'].append(specimen_0)
-                    self.pop['mate_cros'].append(specimen_1)
+                    #self.pop['mate_cros'].append(specimen_0)
+                    #self.pop['mate_cros'].append(specimen_1)
 
         if ga_par.crossover['type'] == 'two_points':
             for i in range(ga_par.number['specimen']):
                 if random.random() < ga_par.crossover['percent_probability'] / 100:
 
-                    specimen_to_crrossover = [random.randint(1, len(temp_cross)-1)]
-                    specimen_to_crrossover.append(random.randint(1, len(temp_cross)-1))
+                    specimen_to_mutation = [random.randint(0, len(temp_cross)-1)]
+                    specimen_to_mutation.append(random.randint(0, len(temp_cross)-1))
 
-                    specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_crrossover[0]]))
-                    specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_crrossover[1]]))
+                    specimen_0 = list(copy.deepcopy(temp_cross[specimen_to_mutation[0]]))
+                    specimen_1 = list(copy.deepcopy(temp_cross[specimen_to_mutation[1]]))
 
                     if ga_par.number['int_genes'] > 0:
                         cros_position = random.randint(1, ga_par.number['int_genes'])
 
-                        first_species_first_half = specimen_0[1][:cros_position[0]]
-                        first_species_second_half = specimen_0[1][cros_position[0]:]
-                        second_species_first_half = specimen_1[1][:cros_position[0]]
-                        second_species_second_half = specimen_1[1][cros_position[0]:]
+                        first_species_first_part = specimen_0[1][:cros_position[0]]
+                        first_species_middle_part = specimen_0[1][cros_position[0]:cros_position[1]]
+                        first_species_last_part = specimen_0[1][cros_position[1]:]
+                        second_species_first_part = specimen_0[1][:cros_position[0]]
+                        second_species_middle_part = specimen_0[1][cros_position[0]:cros_position[1]]
+                        second_species_last_part = specimen_0[1][cros_position[1]:]
 
-                        specimen_0[1] = second_species_first_half + first_species_second_half
-                        specimen_1[1] = first_species_first_half + second_species_second_half
+                        specimen_0[1] = first_species_first_part + second_species_middle_part + first_species_last_part
+                        specimen_1[1] = second_species_first_part + first_species_middle_part + second_species_last_part
 
                     if ga_par.number['float_genes'] > 0:
-                        cros_position = [random.randint(1, ga_par.number['float_genes'])]
+                        cros_position_1 = random.randint(1, ga_par.number['float_genes'])
+                        cros_position_2 = random.randint(cros_position_1, ga_par.number['float_genes'])
 
-                        first_species_first_half = specimen_0[2][:cros_position[0]]
-                        first_species_second_half = specimen_0[2][cros_position[0]:]
-                        second_species_first_half = specimen_1[2][:cros_position[0]]
-                        second_species_second_half = specimen_1[2][cros_position[0]:]
+                        first_species_first_part = specimen_0[1][:cros_position_1]
+                        first_species_middle_part = specimen_0[1][cros_position_1:cros_position_2]
+                        first_species_last_part = specimen_0[1][cros_position_2:]
+                        second_species_first_part = specimen_0[1][:cros_position_1]
+                        second_species_middle_part = specimen_0[1][cros_position_1:cros_position_2]
+                        second_species_last_part = specimen_0[1][cros_position_2:]
 
-                        specimen_0[2] = second_species_first_half + first_species_second_half
-                        specimen_1[2] = first_species_first_half + second_species_second_half
+                        specimen_0[1] = first_species_first_part + second_species_middle_part + first_species_last_part
+                        specimen_1[1] = second_species_first_part + first_species_middle_part + second_species_last_part
 
-                    self.pop['mate_cros'].append(specimen_0)
-                    self.pop['mate_cros'].append(specimen_1)
-
+                    #self.pop['mate_cros'].append(specimen_0)
+                    #self.pop['mate_cros'].append(specimen_1)
 
         if ga_par.crossover['type'] == 'intermediate':
             for i in range(ga_par.number['specimen']):
@@ -669,10 +681,9 @@ class GA_function:
                             specimen_1[2][j] = specimen_0[2][j] * (1 + beta_coefficient) +\
                                                specimen_1[2][j] * beta_coefficient
 
-                self.pop['mate_cros'].append(specimen_0)
-                self.pop['mate_cros'].append(specimen_1)
+        self.pop['mate_cros'].append(self.set_specimen_bound(specimen_0))
+        self.pop['mate_cros'].append(self.set_specimen_bound(specimen_1))
 
-        return 1
 
     def add_data_to_pop(self,epa,population_name,specimen_number):
 
@@ -928,13 +939,13 @@ class GA_function:
         y = self.plot['best_sol']
         y_mean = self.plot['mean_sol'][0]
 
-        if i > ga_par.show['number_last_solutions']:
+        '''if i > ga_par.show['number_last_solutions']:
 
             x = x[:-ga_par.show['number_last_solutions']]
             y = y[:-ga_par.show['number_last_solutions']]
             y_mean = y_mean[:-ga_par.show['number_last_solutions']]
         print(x)
-        print(y)
+        print(y)'''
 
         self.ax[place[0], place[1]].plot(x, y, label = 'Best specimen', color = 'r', linewidth = 1)
         self.ax[place[0], place[1]].plot(x, y_mean, label = 'Mean of specimens', color = 'g', linewidth = 1)
@@ -995,16 +1006,55 @@ class GA_function:
     def save_figure(self):
         self.figure.savefig('last_figure.png')
 
-def save_variabele_space_to_file(file_name, input_dictionary):
+def save_variabele_space_to_file(ga, file_name, input_dictionary):
 
-    key = 'pop'
-    temp_date = []
-    for i in range(ga_par.number['specimen']):
-        temp_date.append(f"{input_dictionary['pop'][i][2:]}\n")
+    if os.path.isfile(file_name) == False:
 
-    with open(file_name,'a') as f:
-        f.writelines(temp_date)
-        f.close()
+        names = 'Fitnes function;'
+        for mes in sw_par.pumps['names']:
+            for i in range(sw_par.number['hydraulic_steps']):
+                names += 'Control - ' + mes+ ' - step '+str(i) + ';'
+
+        for mes in sw_par.mes['nodes_names']:
+            for i in range(sw_par.number['hydraulic_steps']):
+                names += 'Pressure - ' + mes+ ' - step '+str(i) + ';'
+
+        for mes in sw_par.mes['links_names']:
+            for i in range(sw_par.number['hydraulic_steps']):
+                names += 'Flow ' + mes+ ' - step '+str(i) + ';'
+
+        for na in ga.ep.patterns_names:
+            if na not in sw_par.pumps['names']:
+                for i in range(sw_par.number['hydraulic_steps']):
+                    names += 'Pattern ' + na + ' - step '+str(i) + ';'
+
+        with open(file_name, 'w') as f:
+            f.writelines(names)
+            f.close()
+
+    for data in input_dictionary['pop']:
+        values = ''
+        for da in data:
+            if type(da) == float:
+                values += str(da)+';'
+            if type(da) == list:
+                if len(da) > 1 and type(da[0]) == float:
+                    for val in da:
+                        values += f"{val:.4f}" + ';'
+                if len(da) > 1 and type(da[0]) == list:
+                    for li in da:
+                        for val in li:
+                            values += f"{val:.4f}" + ';'
+
+        for i in range(len(ga.ep.patterns_values)):
+            if i not in ga.ep.pumps_pattern_index:
+                for j in range(ga_par.move_time, sw_par.number['hydraulic_steps']+ga_par.move_time):
+                    values += f"{(ga.ep.patterns_values[i][j]):.4f}"+ ';'
+
+        #print(values)
+        with open(file_name,'a') as f:
+            f.write('\n'+values)
+            f.close()
 
 if __name__ == '__main__':
         print('\nTo jest biblioteka pomocna przy algorytmie genetycznym')
@@ -1031,7 +1081,7 @@ if __name__ == '__main__':
 
             ga.ga_elitism()
 
-            #save_variabele_space_to_file('last_best_pop_'+ga_par.data + '.txt', ga.pop)
+            save_variabele_space_to_file(ga, 'last_best_pop_'+sw_par.file_name[0].split('.')[0] + '.csv', ga.pop)
 
             ga.print_statistics()
 

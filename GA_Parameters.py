@@ -5,9 +5,9 @@ class ga_par:
     data = data[0].replace(':', '_').replace(' ', '_')
 
     penalty_function_weights = [1e14, #error
-                                1,    #energy
+                                0.1,    #energy
                                 1000, #pressure
-                                0,    #flow
+                                0.1,    #flow
                                 10000,#tank
                                 1000, #tank_inital
                                 0.1, #accelaration pump pressure,
@@ -29,7 +29,7 @@ class ga_par:
                  'type': 'intermediate',  #single_point, two_points, intermediate
                  'inremediate_d_par' : 0.5}
 
-    specialize_operators ={'error_delta_value': 0.1,
+    specialize_operators ={'error_delta_value': 0.2,
                            'pressure_delta_value': 0.2,
                            'flow_delta_value': 0.2,
                            'end_tank_level_horizon': 8,

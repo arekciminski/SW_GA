@@ -1,4 +1,4 @@
-  Page 1                                    Sun Aug 27 20:48:50 2023
+  Page 1                                    Mon Aug 28 16:54:15 2023
 
   ******************************************************************
   *                           E P A N E T                          *
@@ -7,30 +7,40 @@
   *                         Version 2.00.12                        *
   ******************************************************************
   
-  Analysis begun Sun Aug 27 20:48:50 2023
+  Analysis begun Mon Aug 28 16:54:15 2023
 
-  WARNING: Negative pressures at 6:00:00 hrs.
-  WARNING: Pump SUW_REDA open but exceeds maximum flow at 6:00:00 hrs.
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 0:00:00 hrs.
   
-  WARNING: Negative pressures at 7:00:00 hrs.
-  WARNING: Pump SUW_REDA open but exceeds maximum flow at 7:00:00 hrs.
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 2:30:00 hrs.
   
-  WARNING: Negative pressures at 8:00:00 hrs.
-  WARNING: Pump SUW_REDA open but exceeds maximum flow at 8:00:00 hrs.
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 3:30:00 hrs.
+  WARNING: Pump P_P1 closed because cannot deliver head at 3:30:00 hrs.
   
-  WARNING: Negative pressures at 9:00:00 hrs.
-  WARNING: Pump SUW_REDA open but exceeds maximum flow at 9:00:00 hrs.
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 3:46:41 hrs.
   
-  WARNING: Negative pressures at 10:00:00 hrs.
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 4:30:00 hrs.
+  
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 9:00:00 hrs.
+  
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 12:00:00 hrs.
   
   WARNING: Negative pressures at 15:30:00 hrs.
   WARNING: Pump SUW_REDA open but exceeds maximum flow at 15:30:00 hrs.
   
-  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 22:58:14 hrs.
+  WARNING: Negative pressures at 15:44:11 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 15:44:11 hrs.
   
-  WARNING: Maximum trials exceeded at 23:00:00 hrs. System may be unstable.
-  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 23:00:00 hrs.
+  WARNING: Negative pressures at 15:54:42 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 15:54:42 hrs.
   
-  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 23:30:00 hrs.
+  WARNING: Negative pressures at 15:57:04 hrs.
+  WARNING: Pump SUW_REDA open but exceeds maximum flow at 15:57:04 hrs.
   
-  Analysis ended Sun Aug 27 20:48:56 2023
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 20:00:00 hrs.
+  WARNING: Pump P_P1 closed because cannot deliver head at 20:00:00 hrs.
+  
+  WARNING: Pump P1_SIERADZKA closed because cannot deliver head at 21:00:00 hrs.
+  
+  WARNING: Pump P_P1 closed because cannot deliver head at 23:00:00 hrs.
+  
+  Analysis ended Mon Aug 28 16:54:15 2023
